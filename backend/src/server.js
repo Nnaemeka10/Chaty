@@ -19,4 +19,4 @@ app.use("/api/messages", messageRoutes);
 
 
 // server listen
-app.listen(PORT, () => console.log('Server running on port: ' + PORT));
+app.listen(PORT, () => console.log('Server running on port: ' + PORT)); 
