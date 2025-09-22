@@ -8,7 +8,10 @@ export const login = (req, res) => {
 
 export const signup = async (req, res) => {
 
-    const { username, email, password } = req.body;
+    const { initusername, initemail, initpassword } = req.body;
+    const username = typeof initusername === 'string' ? initusername.trim() : '';
+    const email = typeof initemail === 'string' ? initemail.trim().toLowerCase() : '';
+    const password = typeof initpassword === 'string' ? initpassword : '';
 
     try {
       if(!username || !email || !password){
@@ -40,8 +43,8 @@ export const signup = async (req, res) => {
     })
 
     if (newUser) {
-        generateToken(newUser._id, res)
-        await newUser.save();
+        const savedUser = await newUser.save();
+        generateToken(savedUser._id, res)
 
         return res.status(201).json({
             _id: newUser._id,
@@ -56,6 +59,11 @@ export const signup = async (req, res) => {
     }
     } catch (error) {
         console.log("Error in signup controller: ", error);
+
+        // handle race condition for duplicate email
+        if(error?.code === 11000 && (error.keyPattern?.email || error.keyValue?.email)){
+            return res.status(409).json({message: 'Email already exists'});
+        }
         return res.status(500).json({message: 'Server error'});
     }
 }
