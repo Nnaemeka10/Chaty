@@ -1,9 +1,10 @@
 import jwt from 'jsonwebtoken';
+import { ENV } from './env.js';
 
 // generate JWT token
 export const generateToken = (userId, res) => {
     //authenticate user using JWT
-    const { JWT_SECRET, NODE_ENV } = process.env;
+    const { JWT_SECRET, NODE_ENV } = ENV;
     if (!JWT_SECRET) {
         throw new Error('JWT_SECRET is not defined in environment variables');
     }
