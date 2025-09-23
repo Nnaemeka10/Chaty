@@ -14,8 +14,9 @@ export const signup = async (req, res) => {
     const email = typeof initemail === 'string' ? initemail.trim().toLowerCase() : '';
     const password = typeof initpassword === 'string' ? initpassword : '';
 
-    try {
-      if(!username || !email || !password){
+
+    //validation
+    if(!username || !email || !password){
         return res.status(400).json({message: 'All fields are required'});
       }  
 
@@ -29,30 +30,33 @@ export const signup = async (req, res) => {
         return res.status(400).json({message: 'Please enter a valid email'});
     }
 
-    //check if user already exists
-    const user = await User.findOne({email});
-    if(user) return res.status(400).json({message: 'User already exists'});
-    // 123456 => $dnjakjkhskshk
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
 
-    //create new user
-    const newUser = new User({
-        username,
-        email,
-        password: hashedPassword,
-    })
+    try {
+      
+        //check if user already exists
+        const user = await User.findOne({email});
+        if(user) return res.status(400).json({message: 'User already exists'});
+        // 123456 => $dnjakjkhskshk
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
 
-    if (newUser) {
-        const savedUser = await newUser.save();
-        generateToken(savedUser._id, res)
+        //create new user
+        const newUser = new User({
+            username,
+            email,
+            password: hashedPassword,
+        })
 
-        res.status(201).json({
-            _id: newUser._id,
-            username: newUser.username,
-            email: newUser.email,
-            profilePic: newUser.profilePic,
-        });
+        if (newUser) {
+            const savedUser = await newUser.save();
+            generateToken(savedUser._id, res)
+
+            res.status(201).json({
+                _id: newUser._id,
+                username: newUser.username,
+                email: newUser.email,
+                profilePic: newUser.profilePic,
+            });
 
         
         // Send welcome email
@@ -63,9 +67,9 @@ export const signup = async (req, res) => {
         }
 
 
-    }else{
-        return res.status(400).json({message: 'Invalid user data'});
-    }
+        }else{
+            return res.status(400).json({message: 'Invalid user data'});
+        }
     } catch (error) {
         console.log("Error in signup controller: ", error);
 
@@ -83,12 +87,10 @@ export const login = async (req, res) => {
     const email = typeof initemail === 'string' ? initemail.trim().toLowerCase() : '';
     const password = typeof initpassword === 'string' ? initpassword : '';
 
+     if(!email || !password){
+            return res.status(400).json({message: 'Email and password are required'});
+    }
     try {
-
-        if(!email || !password){
-            return res.status(400).json({message: 'All fields are required'});
-        }
-
         const user = await User.findOne({email});
         if(!user) return res.status(400).json({message: 'Invalid credentials'});
         // never tell the user which one is incorrect
