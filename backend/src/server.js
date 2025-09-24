@@ -1,5 +1,6 @@
 // express import
 import express from 'express';
+import cookieParser from 'cookie-parser';
 
 import path from 'path';
 
@@ -19,6 +20,7 @@ const PORT = ENV.PORT || 3000;
 
 // middlewares
 app.use(express.json()); // to accept json data/ req body
+app.use(cookieParser());
 
 // routes
 app.use("/api/auth", authRoutes);
