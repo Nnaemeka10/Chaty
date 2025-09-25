@@ -8,6 +8,7 @@ import authRoutes from './routes/auth.route.js';
 import messageRoutes from './routes/message.route.js';
 import { connectDB } from './lib/db.js';
 import { ENV } from './lib/env.js';
+import cors from "cors"
 
 
 
@@ -20,6 +21,7 @@ const PORT = ENV.PORT || 3000;
 
 // middlewares
 app.use(express.json()); // to accept json data/ req body
+app.use(cors({ origin: ENV.CLIENT_URL, credentials:true }))
 app.use(cookieParser());
 
 // routes
