@@ -38,13 +38,13 @@ const SignUpPage = () => {
 
                   {/* full name */}
                   <div>
-                    <label className="auth-input-label">Full Name</label>
+                    <label className="auth-input-label">UserName</label>
                     <div className="relative">
                       <UserIcon className="auth-input-icon"/>
 
                       <input 
                         type="text" 
-                        value= {formData.fullName}
+                        value= {formData.initusername}
                         onChange={(e) => setFormData({...formData, initusername: e.target.value})}
                         className="input"
                         placeholder="John Doe" 
@@ -60,7 +60,7 @@ const SignUpPage = () => {
 
                       <input 
                         type="email" 
-                        value= {formData.email}
+                        value= {formData.initemail}
                         onChange={(e) => setFormData({...formData, initemail: e.target.value})}
                         className="input"
                         placeholder="johnDoe@gmail.com" 
@@ -76,7 +76,7 @@ const SignUpPage = () => {
 
                       <input 
                         type="password" 
-                        value= {formData.password}
+                        value= {formData.initpassword}
                         onChange={(e) => setFormData({...formData, initpassword: e.target.value})}
                         className="input"
                         placeholder="Enter your password" 
@@ -105,8 +105,28 @@ const SignUpPage = () => {
               </div>
             </div>
 
+            {/* FORM ILLUSTRATION - RIGHT SIDE */}
+            <div className="hidden md:w-1/2 md:flex items-center justify-center p-6 bg-gradient-to-bl from-slate-800/20 to-transparent">
+              <div>
+                <img
+                  src="/signup.png"
+                  alt="People using mobile devices"
+                  className="w-full h-auto object-contain"
+                />
+                <div className="mt-6 text-center">
+                  <h3 className="text-xl font-medium text-cyan-400">Start Your Journey Today</h3>
+
+                  <div className="mt-4 flex justify-center gap-4">
+                    <span className="auth-badge">Free</span>
+                    <span className="auth-badge">Easy Setup</span>
+                    <span className="auth-badge">Private</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
           </div>
-        </BorderAnimatedContainer >
+        </BorderAnimatedContainer>
 
       </div>
     </div>
