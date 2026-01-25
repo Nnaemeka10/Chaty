@@ -1,6 +1,6 @@
 export function createWelcomeEmailTemplate(unsafeName, unsafeClientURL) {
   const escapeHtml = (s) => {
-    String(s).replace(/&<>"'/g, (c) => ({
+    return String(s).replace(/&<>"'/g, (c) => ({
       '&': '&amp;',
       '<': '&lt;',
       '>': '&gt;',
