@@ -1,0 +1,47 @@
+# Dependencies
+node_modules
+*/node_modules
+
+# Build outputs (will be built in container)
+frontend/dist
+
+# Environment files (use cloud platform's env management)
+.env
+*/.env
+.env.*
+*/.env.*
+
+# Git
+.git
+.gitignore
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Test files
+coverage
+*.test.js
+*.spec.js
+__tests__
+
+# Documentation
+README.md
+README
+*.md
+
+# Docker files (not needed in image)
+Dockerfile
+docker-compose*.yml
+.dockerignore
