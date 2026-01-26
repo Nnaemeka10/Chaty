@@ -11,7 +11,7 @@ import NoConversationPlaceholder from "../components/NoConversationPlaceholder";
 
 const ChatPage = () => {
   // const { logout } = useAuthStore();
-  const { activeTab, selectedUser } = useChatStore
+  const { activeTab, selectedUser } = useChatStore()
 
   return (
     <div className="relative w-full max-w-6xl h-[800px]">
