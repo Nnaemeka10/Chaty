@@ -2,9 +2,12 @@ import { useEffect } from "react"
 import { useChatStore } from "../store/useChatStore"
 import UsersLoadingSkeleton from "./UsersLoadingSkeleton"
 import NoChatsFound from "./NoChatsFound"
+import { useAuthStore } from "../store/useAuthStore"
 
 const ContactList = () => {
   const {allContacts, isUsersLoading, getAllContacts, setSelectedUser} = useChatStore();
+
+  const { onlineUsers } = useAuthStore();
 
   useEffect( () => {
     getAllContacts();
@@ -27,7 +30,7 @@ const ContactList = () => {
           className="p-4 bg-cyan-500/10 rounded-lg hover:bg-slate-500/20 cursor-pointer transition-colors"
         >
           <div className="flex items-center gap-3">
-            <div className={`avatar online`}>
+            <div className={`avatar ${ onlineUsers.includes(contact._id) ? "online" : "offline" }`}>
               <div className="size-12 rounded-full">
                 <img src={contact.profilePic || "/avatar.png"} alt={contact.username} />
               </div>
