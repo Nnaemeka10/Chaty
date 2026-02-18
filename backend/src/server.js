@@ -25,8 +25,7 @@ app.use(cookieParser());
 // routes
 app.use("/api/auth", authRoutes);
 app.use("/api/messages", messageRoutes);
-app.use("/api/chats/", chatRoutes);
-app.use("/api/users", userRoutes);
+
 
 
 //make ready for deployment
