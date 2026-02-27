@@ -1,6 +1,6 @@
 import toast from "react-hot-toast";
-import useKeyboardSound from "../hooks/useKeyboardSound"
-import  { useChatStore } from "../store/useChatStore";
+import useKeyboardSound from "../../../hooks/useKeyboardSound"
+import  { useChatStore } from "../useChatStore";
 import { useRef, useState } from "react";
 import { ImageIcon, SendIcon, XIcon } from "lucide-react";
 

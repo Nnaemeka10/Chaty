@@ -1,9 +1,9 @@
 import { Navigate, Route, Routes } from "react-router";
 
-import ChatPage from "./pages/ChatPage";
-import LoginPage from "./pages/LoginPage";
-import SignUpPage from "./pages/SignUpPage";
-import { useAuthStore } from "./store/useAuthStore";
+import ChatPage from "./modules/chat/pages/ChatPage";
+import LoginPage from "./modules/auth/pages/LoginPage"; 
+import SignUpPage from "./modules/auth/pages/SignUpPage"; 
+import { useAuthStore } from "./modules/auth/useAuthStore"; 
 import { useEffect } from "react";
 import PageLoader from "./components/PageLoader";
 import { Toaster } from "react-hot-toast";
