@@ -2,10 +2,69 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  html {
+    font-family:
+      Inter,
+      system-ui,
+      -apple-system,
+      Segoe UI,
+      Roboto,
+      Arial,
+      sans-serif;
+  }
+  body {
+    @apply bg-app-bg text-text-primary antialiased;
+  }
+}
+
+@layer components {
+  .card {
+    @apply bg-app-surface border border-app-border rounded-xl shadow-card;
+  }
+
+  .btn {
+    @apply inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium transition;
+  }
+
+  .btn-primary {
+    @apply bg-primary text-text-inverse hover:bg-primary-hover focus:outline-none focus:ring-primary focus:ring-2 focus:ring-offset-2;
+  }
+
+  .btn-secondary {
+    @apply bg-app-subtle text-text-primary hover:bg-gray-200 border border-app-border;
+  }
+
+  .btn-danger {
+    @apply btn bg-danger text-text-inverse hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-danger focus:ring-offset-2;
+  }
+
+  .input {
+    @apply w-full rounded-lg border border-app-border bg-app-surface px-3 py-2 text-sm
+           placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2;
+  }
+
+  .badge {
+    @apply inline-flex items-center rounded-full px-2 py-1 text-xs font-medium;
+  }
+
+  .badge-public {
+    @apply badge bg-green-100 text-green-700;
+  }
+
+  .badge-private {
+    @apply badge bg-gray-200 text-gray-700;
+  }
+
+  .badge-anchor {
+    @apply badge bg-primary-soft text-primary;
+  }
+}
+
 @property --border-angle {
-    inherits: false;
-    initial-value: 0deg;
-    syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+  syntax: '<angle>';
 }
 
 .input {
@@ -33,5 +92,3 @@
   @apply px-4 py-2 inline-block bg-cyan-500/10 rounded-lg text-cyan-400
   hover:text-cyan-500 text-sm transition-colors;
 }
-
- 

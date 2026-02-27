@@ -8,6 +8,8 @@ import { useEffect } from "react";
 import PageLoader from "./components/PageLoader";
 import { Toaster } from "react-hot-toast";
 
+import GroupPage from "./modules/groups/pages/GroupPage";
+
 
 
 const App = () => {
@@ -31,7 +33,7 @@ const App = () => {
       <div className="absolute bottom-0 -right-4 size-96 bg-cyan-500 opacity-20 blur-[100px]" />
 
       <Routes>
-        <Route path = "/" element = { authUser ? <ChatPage /> : <Navigate to= {"/login"}/>} />
+        <Route path = "/" element = { authUser ? <GroupPage /> : <Navigate to= {"/login"}/>} />
         <Route path = "/login" element = {!authUser ? <LoginPage /> : <Navigate to={"/"} />} />
         <Route path = "/signup" element = {!authUser ? <SignUpPage /> : <Navigate to={"/"} />} />
       </Routes>
