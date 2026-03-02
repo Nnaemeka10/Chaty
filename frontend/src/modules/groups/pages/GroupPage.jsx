@@ -1,12 +1,254 @@
-import { GroupCard } from "../components/GroupCard"
+import { useEffect, useState } from "react";
+import { useGroupStore } from "../useGroupStore";
+import GroupsHeader from "../components/GroupsHeader";
+import SearchFilterBar from "../components/SearchFilterBar";
+import TabsNavigation from "../components/TabsNavigation";
+import GroupsList from "../components/GroupsList";
+import InviteCard from "../components/InviteCard";
+import ScheduleCard from "../components/ScheduleCard";
+import GroupsLoadingSkeleton from "../components/GroupsLoadingSkeleton";
+import EmptyStates from "../components/EmptyStates";
 
 const GroupPage = () => {
+  const {
+    // State
+    myGroups,
+    discoveredGroups,
+    groupInvites,
+    groupSchedule,
+    activeTab,
+    searchQuery,
+    filters,
+    sortBy,
+
+    // Loading states
+    isGroupsLoading,
+    isDiscoveryLoading,
+    isInvitesLoading,
+    isScheduleLoading,
+
+    // API calls
+    getMyGroups,
+    getDiscoveredGroups,
+    getGroupInvites,
+    getInviteCount,
+    getGroupSchedule,
+    getScheduleCount,
+    joinGroup,
+    acceptInvite,
+    rejectInvite,
+  } = useGroupStore();
+
+  const [showCreateModal, setShowCreateModal] = useState(false);
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [activeTab]);
+
+  // Fetch data on mount and when tab changes
+  //later seperate the use effects for each tab and also for the counts and remove the eccess dependencies aside from active tab since zustand fxns are stable and do not trigger re-renders, there is no need to add them as dependencies, we can just disable the eslint warning for that line
+  useEffect(() => {
+    getInviteCount();
+    getScheduleCount();
+
+    if (activeTab === "my-groups") {
+      getMyGroups();
+    } else if (activeTab === "discover") {
+      getDiscoveredGroups();
+    } else if (activeTab === "invites") {
+      getGroupInvites();
+    } else if (activeTab === "schedule") {
+      getGroupSchedule();
+    }
+  }, [activeTab, getMyGroups, getDiscoveredGroups, getGroupInvites, getGroupSchedule, getInviteCount, getScheduleCount]);
+
+  // Filter and sort groups based on search and filters
+  const filteredGroups = (groups) => {
+    return groups.filter((group) => {
+      const matchesSearch =
+        group.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        group.description.toLowerCase().includes(searchQuery.toLowerCase());
+
+      const matchesPrivacy =
+        filters.privacy === "all" || group.privacy === filters.privacy;
+
+      const matchesMemberCount = (() => {
+        if (filters.memberCount === "all") return true;
+        if (filters.memberCount === "small") return group.memberCount <= 10;
+        if (filters.memberCount === "medium")
+          return group.memberCount > 10 && group.memberCount <= 50;
+        if (filters.memberCount === "large") return group.memberCount > 50;
+        return true;
+      })();
+
+      const matchesActivity =
+        filters.activity === "all" ||
+        (filters.activity === "active" && group.isActive) ||
+        (filters.activity === "inactive" && !group.isActive);
+
+      return (
+        matchesSearch &&
+        matchesPrivacy &&
+        matchesMemberCount &&
+        matchesActivity
+      );
+    });
+  };
+
+  const sortGroups = (groups) => {
+    const sorted = [...groups];
+    switch (sortBy) {
+      case "recently-active":
+        // In real app, sort by last activity
+        return sorted;
+      case "newest":
+        return sorted.sort(
+          (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+        );
+      case "largest":
+        return sorted.sort((a, b) => b.memberCount - a.memberCount);
+      case "alphabetical":
+        return sorted.sort((a, b) => a.name.localeCompare(b.name));
+      default:
+        return sorted;
+    }
+  };
+
+  const getDisplayGroups = () => {
+    let groups = [];
+
+    if (activeTab === "my-groups") {
+      groups = myGroups;
+    } else if (activeTab === "discover") {
+      groups = discoveredGroups;
+    }
+
+    return sortGroups(filteredGroups(groups));
+  };
+
+  const displayGroups = getDisplayGroups();
+
+
+  const isLoading =
+    activeTab === "my-groups"
+      ? isGroupsLoading
+      : activeTab === "discover"
+        ? isDiscoveryLoading
+        : activeTab === "invites"
+          ? isInvitesLoading
+          : activeTab === "schedule"
+            ? isScheduleLoading
+            : false;
+
+  const cardActions = {
+    onOpen: (groupId) => {
+      // Navigate to group detail page
+      console.log("Open group:", groupId);
+    },
+    onJoin: joinGroup,
+    onAccept: acceptInvite,
+    isMember: (groupId) => myGroups.some((g) => g._id === groupId),
+    isInvited: (groupId) =>
+      groupInvites.some((g) => g._id === groupId),
+  };
+
   return (
-    <div className="p-4">
-      <GroupCard />
-      <GroupCard />
+    <div className="w-full max-w-7xl mx-auto min-h-screen transition-all duration-300">
+      {/* Header */}
+      <GroupsHeader
+        onCreateClick={() => setShowCreateModal(true)}
+      />
+
+      {/* Only show search/filters for My Groups and Discover */}
+      {activeTab !== "invites" && activeTab !== "schedule" && <SearchFilterBar />}
+
+      {/* Tabs */}
+      <TabsNavigation />
+
+      {/* Content based on active tab */}
+      <div className="mt-6">
+        {activeTab === "my-groups" && (
+          <GroupsList
+            groups={displayGroups}
+            isLoading={isLoading}
+            emptyStateType={
+              displayGroups.length === 0 && !searchQuery
+                ? "no-groups"
+                : "no-search-results"
+            }
+            onCardAction={cardActions}
+          />
+        )}
+
+        {activeTab === "discover" && (
+          <GroupsList
+            groups={displayGroups}
+            isLoading={isLoading}
+            emptyStateType="no-search-results"
+            onCardAction={cardActions}
+          />
+        )}
+
+        {activeTab === "invites" && (
+          <>
+            {isLoading ? (
+              <GroupsLoadingSkeleton />
+            ) : groupInvites.length === 0 ? (
+              <EmptyStates type="no-invites" activeTab={activeTab} />
+            ) : (
+              <div className="space-y-4">
+                {groupInvites.map((invite) => (
+                  <InviteCard
+                    key={invite._id}
+                    invite={invite}
+                    onAccept={acceptInvite}
+                    onReject={rejectInvite}
+                  />
+                ))}
+              </div>
+            )}
+          </>
+        )}
+
+
+        {activeTab === "schedule" && (
+          <>
+            {isLoading ? (
+              <GroupsLoadingSkeleton />
+            ) : groupSchedule.length === 0 ? (
+              <EmptyStates type="no-schedule" />
+            ) : (
+              <div className="space-y-4">
+                {groupSchedule.map((schedule) => (
+                  <ScheduleCard key={schedule._id} schedule={schedule} />
+                ))}
+              </div>
+            )}
+          </>
+        )}
+      </div>
+
+      {/* Create Group Modal - Placeholder */}
+      {showCreateModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-slate-900 border border-slate-700 rounded-xl p-8 max-w-md w-full mx-4">
+            <h2 className="text-2xl font-semibold text-slate-100 mb-4">
+              Create Group
+            </h2>
+            <p className="text-slate-400 mb-6">
+              Coming soon... States and API will be added later
+            </p>
+            <button
+              onClick={() => setShowCreateModal(false)}
+              className="w-full px-4 py-2.5 bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg font-medium transition-colors"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
     </div>
-  )
+  );
 }
 
-export default GroupPage
+export default GroupPage;
