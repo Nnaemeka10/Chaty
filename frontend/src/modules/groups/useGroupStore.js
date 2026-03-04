@@ -1,6 +1,11 @@
 import { create } from "zustand";
 import toast from "react-hot-toast";
 
+// Helper to navigate to group page (will be called from components)
+export const navigateToGroup = (navigate, groupId) => {
+  navigate(`/group/${groupId}`);
+};
+
 export const useGroupStore = create((set, get) => ({
   // State
   groups: [],
@@ -52,6 +57,26 @@ export const useGroupStore = create((set, get) => ({
             _id: "1",
             name: "Computer Science Group",
             description: "Discussions about CS fundamentals and algorithms",
+            noticeBoard: [
+              {
+                _id: "n1",
+                content: "Next meeting on Friday at 5 PM. Topic: Graph Algorithms.",
+              },
+              {
+                _id: "n2",
+                content: "Don't forget to submit your project proposals by next week!",
+              },
+            ],
+            pinnedMessages: [
+              {
+                _id: "m1",
+                content: "Welcome to the Computer Science Group! Please introduce yourself.",
+              },
+              {
+                _id: "m2",
+                content: "Don't forget to check out the pinned resources for exam prep!",
+              },
+            ],
             avatar: null,
             memberCount: 24,
             topicsCount: 5,
@@ -290,26 +315,72 @@ export const useGroupStore = create((set, get) => ({
 
   
 
-  // eslint-disable-next-line no-unused-vars
-  createGroup: async (_groupData) => {
+ 
+  createGroup: async (_groupData, navigate) => {
     try {
       // const res = await axiosInstance.post("/groups", _groupData);
-      // set((state) => ({ myGroups: [...state.myGroups, res.data] }));
+      // const newGroup = res.data;
+      
+      // Mock: Create a new group object
+      const newGroup = {
+        _id: Date.now().toString(),
+        name: _groupData.name,
+        description: _groupData.description,
+        privacy: _groupData.privacy,
+        avatar: _groupData.avatar || null,
+        memberCount: 1,
+        topicsCount: 0,
+        isActive: true,
+        createdAt: new Date(),
+        noticeBoard: [],
+        pinnedMessages: [],
+      };
+      
+      set((state) => ({ myGroups: [...state.myGroups, newGroup] }));
       toast.success("Group created successfully!");
+      
+      // Navigate to the new group page
+      if (navigate) {
+        navigateToGroup(navigate, newGroup._id);
+      }
+      
+      return newGroup;
     } catch (error) {
       toast.error(error?.response?.data?.message || "Failed to create group");
+      throw error;
     }
   },
 
-  // eslint-disable-next-line no-unused-vars
-  joinGroup: async (_groupId) => {
+ 
+  joinGroup: async (_groupId, navigate) => {
     try {
       // await axiosInstance.post(`/groups/${_groupId}/join`);
       toast.success("Group joined successfully!");
+      
+      // Find the group being joined
+      const state = get();
+      const joinedGroup = state.discoveredGroups.find(g => g._id === _groupId);
+      
+      // Add to myGroups if found
+      if (joinedGroup) {
+        set((s) => ({ 
+          myGroups: [...s.myGroups, joinedGroup],
+          discoveredGroups: s.discoveredGroups.filter(g => g._id !== _groupId)
+        }));
+      }
+      
       // Refetch to update UI
       get().getDiscoveredGroups();
+      
+      // Navigate to the group page
+      if (navigate) {
+        navigateToGroup(navigate, _groupId);
+      }
+      
+      return joinedGroup;
     } catch (error) {
       toast.error(error?.response?.data?.message || "Failed to join group");
+      throw error;
     }
   },
 
@@ -324,15 +395,44 @@ export const useGroupStore = create((set, get) => ({
     }
   },
 
-  // eslint-disable-next-line no-unused-vars
-  acceptInvite: async (_groupId) => {
+
+  acceptInvite: async (_groupId, navigate) => {
     try {
       // await axiosInstance.post(`/groups/${_groupId}/accept-invite`);
       toast.success("Invite accepted!");
+      
+      // Find the group being accepted
+      const state = get();
+      const acceptedGroup = state.groupInvites.find(g => g._id === _groupId);
+      
+      // Add to myGroups if found
+      if (acceptedGroup) {
+        set((s) => ({ 
+          myGroups: [...s.myGroups, acceptedGroup],
+          groupInvites: s.groupInvites.filter(g => g._id !== _groupId),
+          inviteCount: Math.max(0, s.inviteCount - 1)
+        }));
+      }
+      
       get().getGroupInvites();
       get().getMyGroups();
+      
+      // Navigate to the group page
+      if (navigate) {
+        navigateToGroup(navigate, _groupId);
+      }
+      
+      return acceptedGroup;
     } catch (error) {
       toast.error(error?.response?.data?.message || "Failed to accept invite");
+      throw error;
+    }
+  },
+
+  // Open group - navigate to group page
+  openGroup: (_groupId, navigate) => {
+    if (navigate) {
+      navigateToGroup(navigate, _groupId);
     }
   },
 

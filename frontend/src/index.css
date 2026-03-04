@@ -92,3 +92,124 @@
   @apply px-4 py-2 inline-block bg-cyan-500/10 rounded-lg text-cyan-400
   hover:text-cyan-500 text-sm transition-colors;
 }
+
+/* Create Group Modal Animations */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideOut {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes fadeOutScale {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+@keyframes expandHeight {
+  from {
+    max-height: 0;
+    opacity: 0;
+  }
+  to {
+    max-height: 500px;
+    opacity: 1;
+  }
+}
+
+@keyframes collapseHeight {
+  from {
+    max-height: 500px;
+    opacity: 1;
+  }
+  to {
+    max-height: 0;
+    opacity: 0;
+  }
+}
+
+.create-group-modal-content {
+  animation: slideIn 0.3s ease-out;
+}
+
+.create-group-modal-content-exit {
+  animation: slideOut 0.3s ease-out;
+}
+
+.step-card {
+  animation: fadeInScale 0.4s ease-out;
+}
+
+.step-card-exit {
+  animation: fadeOutScale 0.4s ease-out;
+}
+
+.toggle-expand {
+  animation: expandHeight 0.3s ease-out;
+}
+
+.toggle-collapse {
+  animation: collapseHeight 0.3s ease-out;
+}
+
+.step-indicator-active {
+  @apply relative;
+}
+
+.step-indicator-active::after {
+  content: '';
+  @apply absolute bottom-0 left-0 right-0 h-1 bg-indigo-500 rounded-full;
+  animation: slideIn 0.3s ease-out;
+}
+
+.preview-card-skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(71, 85, 105, 0.2) 25%,
+    rgba(51, 65, 85, 0.3) 50%,
+    rgba(71, 85, 105, 0.2) 75%
+  );
+  background-size: 1000px 100%;
+  animation: shimmer 2s infinite;
+}
