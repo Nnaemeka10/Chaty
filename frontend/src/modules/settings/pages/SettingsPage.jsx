@@ -16,7 +16,7 @@ const SettingsPage = () => {
     useSettingsStore();
 
   return (
-    <div className="w-full max-w-2xl mx-auto">
+    <div className="w-full max-w-2xl mx-auto p-4">
       {/* Header */}
       <div className="flex items-center gap-3 mb-8">
         <button

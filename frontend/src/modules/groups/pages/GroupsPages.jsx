@@ -160,7 +160,7 @@ const GroupsPages = () => {
   };
 
   return (
-    <div className="w-full max-w-7xl mx-auto min-h-screen transition-all duration-300">
+    <div className="w-full max-w-7xl mx-auto min-h-screen transition-all duration-300 p-4">
       {/* Header */}
       <GroupsHeader
         onCreateClick={() => setShowCreateModal(true)}

@@ -33,7 +33,7 @@ const GroupSettings = () => {
       <div className="mb-6">
         <button
           onClick={() => navigate(`/group/${groupId}`)}
-          className="flex items-center gap-2 px-4 py-2 bg-slate-800/50 hover:bg-slate-800 border border-slate-700 rounded-lg text-slate-300 hover:text-slate-100 transition-all mb-4"
+          className="flex items-center text-xs sm:text-sm gap-2 px-2 sm:px-4 py-2 bg-slate-800/50 hover:bg-slate-800 border border-slate-700 rounded-lg text-slate-300 hover:text-slate-100 transition-all mb-4"
         >
           <ArrowLeftIcon className="w-4 h-4" />
           Back to Lobby
@@ -59,9 +59,9 @@ const GroupSettings = () => {
           </div>
 
           {/* Group Info */}
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 sm:gap-3 mb-2">
-              <h1 className="sm:text-3xl text-lg font-bold text-slate-100 truncate">
+          <div className="flex-1 min-w-0 w-full">
+            <div className="flex flex-col items-start gap-2 sm:gap-3 mb-2">
+              <h1 className="sm:text-3xl text-lg font-bold text-slate-100 truncate w-full">
                 {group.name}
               </h1>
               <span
@@ -74,7 +74,7 @@ const GroupSettings = () => {
                 {group.privacy === "public" ? "Public" : "Private"}
               </span>
             </div>
-            <p className="text-slate-400 mb-4">
+            <p className="text-slate-400 mb-4 text-sm sm:text-md">
               {group.description}
             </p>
 
@@ -92,7 +92,7 @@ const GroupSettings = () => {
           </div>
 
           {/* Action Button */}
-          <button className="text-sm sm:text-md px-4 sm:px-6 py-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg font-medium transition-colors flex items-center gap-2">
+          <button className="text-xs sm:text-md px-2 sm:px-6 py-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg font-medium transition-colors flex items-center gap-2">
             <SettingsIcon className="w-4 h-4" />
             Settings
           </button>
@@ -105,10 +105,10 @@ const GroupSettings = () => {
         <div className="lg:col-span-2 space-y-6">
           {/* Notice Board */}
           <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-xl p-6">
-            <h2 className="text-xl font-semibold text-slate-100 mb-4">
+            <h2 className="text-lg sm:text-xl font-semibold text-slate-100 mb-4">
               Notice Board
             </h2>
-            <div className="text-slate-400 leading-relaxed">
+            <div className="text-slate-400 leading-relaxed text-sm sm:text-md">
               { group.noticeBoard.length > 0 ? (
                 group.noticeBoard.map(notice => (
                   <div key={notice._id} className="mb-2 last:mb-0">
@@ -119,19 +119,19 @@ const GroupSettings = () => {
                 "No notices yet. Group admins can post important updates here."
               )}
             </div>
-            <p className="text-slate-500 text-sm mt-4">
+            <p className="text-slate-500 text-xs sm:text-sm mt-4">
               Created on {new Date(group.createdAt).toLocaleDateString()}
             </p>
           </div>
 
           {/* Discussions Placeholder */}
           <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-xl p-6">
-            <h2 className="text-xl font-semibold text-slate-100 mb-4">
+            <h2 className="text-lg sm:text-xl font-semibold text-slate-100 mb-4">
               Discussions
             </h2>
             <div className="flex flex-col items-center justify-center py-12 text-center">
               <MessageSquareIcon className="w-12 h-12 text-slate-600 mb-3" />
-              <p className="text-slate-400">
+              <p className="text-slate-400 text-sm">
                 No discussions yet. Start one to get the conversation going!
               </p>
             </div>
@@ -139,14 +139,14 @@ const GroupSettings = () => {
 
           {/* Resources Placeholder */}
           <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-xl p-6">
-            <h2 className="text-xl font-semibold text-slate-100 mb-4">
+            <h2 className="text-lg sm:text-xl font-semibold text-slate-100 mb-4">
               Resources
             </h2>
             <div className="flex flex-col items-center justify-center py-12 text-center">
               <div className="w-12 h-12 bg-slate-700/50 rounded-lg flex items-center justify-center mb-3">
                 <span className="text-2xl">📚</span>
               </div>
-              <p className="text-slate-400">
+              <p className="text-slate-400 text-sm">
                 No resources shared yet. Share study materials with members.
               </p>
             </div>
@@ -157,7 +157,7 @@ const GroupSettings = () => {
         <div className="space-y-6">
           {/* Members Placeholder */}
           <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-xl p-6">
-            <h2 className="text-lg font-semibold text-slate-100 mb-4">
+            <h2 className="text-lg sm:text-xl font-semibold text-slate-100 mb-4">
               Members
             </h2>
             <div className="space-y-3">
