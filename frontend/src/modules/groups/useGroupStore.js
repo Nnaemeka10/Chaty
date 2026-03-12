@@ -88,6 +88,26 @@ export const useGroupStore = create((set, get) => ({
             _id: "2",
             name: "Medicine Study Circle",
             description: "Collaborative learning for medical students",
+            noticeBoard: [
+              {
+                _id: "n1",
+                content: "Next meeting on Friday at 5 PM. Topic: Graph Algorithms.",
+              },
+              {
+                _id: "n2",
+                content: "Don't forget to submit your project proposals by next week!",
+              },
+            ],
+            pinnedMessages: [
+              {
+                _id: "m1",
+                content: "Welcome to the Computer Science Group! Please introduce yourself.",
+              },
+              {
+                _id: "m2",
+                content: "Don't forget to check out the pinned resources for exam prep!",
+              },
+            ],
             avatar: "https://via.placeholder.com/200?text=MED",
             memberCount: 18,
             topicsCount: 3,
@@ -99,6 +119,26 @@ export const useGroupStore = create((set, get) => ({
             _id: "3",
             name: "Law Review Sessions",
             description: "Preparation for law exams and case studies",
+            noticeBoard: [
+              {
+                _id: "n1",
+                content: "Next meeting on Friday at 5 PM. Topic: Graph Algorithms.",
+              },
+              {
+                _id: "n2",
+                content: "Don't forget to submit your project proposals by next week!",
+              },
+            ],
+            pinnedMessages: [
+              {
+                _id: "m1",
+                content: "Welcome to the Computer Science Group! Please introduce yourself.",
+              },
+              {
+                _id: "m2",
+                content: "Don't forget to check out the pinned resources for exam prep!",
+              },
+            ],
             avatar: "https://via.placeholder.com/200?text=LAW",
             memberCount: 12,
             topicsCount: 4,

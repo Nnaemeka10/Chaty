@@ -1,5 +1,5 @@
 import { useEffect } from "react"
-import { useChatStore } from "../useChatStore"
+import { useChatStore } from "../store/useChatStore"
 import UsersLoadingSkeleton from "../../../components/UsersLoadingSkeleton"
 import NoChatsFound from "../components/NoChatsFound"
 import { useAuthStore } from "../../auth/useAuthStore"

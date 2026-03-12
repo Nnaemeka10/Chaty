@@ -1,4 +1,4 @@
-import { useChatStore } from "../useChatStore";
+import { useChatStore } from "../store/useChatStore";
 
 const ActiveTabSwitch = () => {
   const { activeTab, setActiveTab } = useChatStore();

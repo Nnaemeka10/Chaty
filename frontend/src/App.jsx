@@ -9,8 +9,9 @@ import PageLoader from "./components/PageLoader";
 import { Toaster } from "react-hot-toast";
 
 import GroupsPages from "./modules/groups/pages/GroupsPages";
-import GroupPage from "./modules/groups/pages/GroupPage";
+import GroupLobby from "./modules/groups/pages/GroupLobby";
 import SettingsPage from "./modules/settings/pages/SettingsPage";
+import GroupSettings from "./modules/settings/pages/GroupSettings";
 import UserProfile from "./modules/users/pages/UserProfile";
 
 
@@ -38,7 +39,8 @@ const App = () => {
 
       <Routes>
         <Route path = "/" element = { authUser ? <GroupsPages /> : <Navigate to= {"/login"}/>} />
-        <Route path = "/group/:groupId" element = { authUser ? <GroupPage /> : <Navigate to= {"/login"}/>} />
+        <Route path = "/group/:groupId" element = { authUser ? <GroupLobby /> : <Navigate to= {"/login"}/>} />
+        <Route path = "/group/:groupId/settings" element = { authUser ? <GroupSettings /> : <Navigate to= {"/login"}/>} />
         <Route path = "/settings" element = { authUser ? <SettingsPage /> : <Navigate to= {"/login"}/>} />
         <Route path = "/user-profile" element = { authUser ? <UserProfile /> : <Navigate to= {"/login"}/>} />
         <Route path = "/login" element = {!authUser ? <LoginPage /> : <Navigate to={"/"} />} />

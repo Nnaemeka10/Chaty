@@ -3,7 +3,7 @@ import { ArrowLeftIcon, SettingsIcon, UsersIcon, MessageSquareIcon } from "lucid
 import { useGroupStore } from "../useGroupStore";
 import { useEffect } from "react";
 
-const GroupPage = () => {
+const GroupSettings = () => {
   const { groupId } = useParams();
   const navigate = useNavigate();
   const { selectedGroup, myGroups } = useGroupStore();
@@ -36,7 +36,7 @@ const GroupPage = () => {
           className="flex items-center gap-2 px-4 py-2 bg-slate-800/50 hover:bg-slate-800 border border-slate-700 rounded-lg text-slate-300 hover:text-slate-100 transition-all mb-4"
         >
           <ArrowLeftIcon className="w-4 h-4" />
-          Back to Groups
+          Back to Lobby
         </button>
       </div>
 
@@ -208,4 +208,4 @@ const GroupPage = () => {
   );
 };
 
-export default GroupPage;
+export default GroupSettings;

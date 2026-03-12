@@ -1,5 +1,5 @@
 // import { useAuthStore } from "../store/useAuthStore";
-import { useChatStore } from "../useChatStore"
+import { useChatStore } from "../store/useChatStore"
 import BorderAnimatedContainer from "../../../components/BorderAnimatedContainer"
 import ProfileHeader from "../components/ProfileHeader";
 import ActiveTabSwitch from "../components/ActiveTabSwitch";

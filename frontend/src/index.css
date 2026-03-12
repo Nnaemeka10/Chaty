@@ -213,3 +213,172 @@
   background-size: 1000px 100%;
   animation: shimmer 2s infinite;
 }
+/* Lobby Sidebar & Header Animations */
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse-subtle {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+@keyframes tabSwitch {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Lobby Container */
+.lobby-container {
+  animation: slideInRight 0.4s ease-out;
+}
+
+/* Lobby Sidebar */
+.lobby-sidebar {
+  animation: slideInLeft 0.4s ease-out;
+}
+
+/* Lobby Tab Button */
+.lobby-tab-button {
+  animation: slideInLeft 0.3s ease-out;
+
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+/* Group Tooltip */
+.lobby-tab-button .group-hover\:opacity-100 {
+  animation: slideInRight 0.2s ease-out;
+}
+
+/* Lobby Header Menu */
+.lobby-header-menu {
+  animation: slideDown 0.2s ease-out;
+  backdrop-filter: blur(4px);
+}
+
+.lobby-header-menu button {
+  transition: all 0.2s ease-out;
+}
+
+.lobby-header-menu button:hover {
+  padding-left: 1.25rem;
+}
+
+/* Tab Content Animation */
+.tab-content-active {
+  animation: tabSwitch 0.3s ease-out;
+}
+
+/* Active Members Badge */
+.active-members-pulse {
+  animation: pulse-subtle 2s ease-in-out infinite;
+}
+
+/* Smooth Scroll */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(71, 85, 105, 0.5);
+  border-radius: 4px;
+
+  &:hover {
+    background: rgba(71, 85, 105, 0.8);
+  }
+}
+
+/* Header Group Avatar Animation */
+.header-avatar-hover {
+  position: relative;
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: 0.5rem;
+    background: linear-gradient(
+      45deg,
+      transparent,
+      rgba(99, 102, 241, 0.2),
+      transparent
+    );
+    opacity: 0;
+    animation: shimmer 2s infinite;
+    transition: opacity 0.3s ease-out;
+  }
+
+  &:hover::after {
+    opacity: 1;
+  }
+}
+
+/* Group Info Badge */
+.group-info-badge {
+  @apply inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium
+  bg-indigo-500/10 text-indigo-300 border border-indigo-500/20
+  transition-all duration-200;
+}
+
+.group-info-badge:hover {
+  @apply bg-indigo-500/20 border-indigo-500/40;
+}
+
+/* Responsive Lobby */
+@media (max-width: 768px) {
+  .lobby-sidebar {
+    width: 60px;
+  }
+
+  .lobby-tab-button {
+    width: 45px;
+    height: 45px;
+  }
+}
