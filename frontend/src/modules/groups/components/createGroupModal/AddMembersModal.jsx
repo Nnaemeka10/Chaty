@@ -1,23 +1,40 @@
-import { useState } from "react";
-import { XIcon, SearchIcon, CopyIcon, CheckIcon, UserCheckIcon, UserPlusIcon } from "lucide-react";
+import { useState, useEffect } from "react";
+import { XIcon, SearchIcon, CopyIcon, CheckIcon, UserCheckIcon, UserPlusIcon, LoaderIcon } from "lucide-react";
 import toast from "react-hot-toast";
+import { axiosInstance } from "../../../../lib/axios";
 
 const AddMembersModal = ({ isOpen, onClose, groupId }) => {
   const [activeTab, setActiveTab] = useState("search"); // "search", "link"
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedUsers, setSelectedUsers] = useState([]);
   const [copied, setCopied] = useState(false);
+  const [allUsers, setAllUsers] = useState([]);
+  const [isLoadingUsers, setIsLoadingUsers] = useState(false);
+  const [isInviting, setIsInviting] = useState(false);
 
-  // Mock users for search
-  const mockUsers = [
-    { id: "1", username: "alex_tech", email: "alex@email.com", avatar: null },
-    { id: "2", username: "jane_code", email: "jane@email.com", avatar: null },
-    { id: "3", username: "mike_study", email: "mike@email.com", avatar: null },
-    { id: "4", username: "sarah_learner", email: "sarah@email.com", avatar: null },
-    { id: "5", username: "david_mind", email: "david@email.com", avatar: null },
-  ];
+  // Fetch all users on mount
+  useEffect(() => {
+    if (isOpen && activeTab === "search" && allUsers.length === 0) {
+      fetchAllUsers();
+    }
+  }, [isOpen, activeTab, allUsers.length]);
 
-  const filteredUsers = mockUsers.filter(
+  const fetchAllUsers = async () => {
+    setIsLoadingUsers(true);
+    try {
+      const response = await axiosInstance.get("/users", {
+        params: { limit: 100 },
+      });
+      setAllUsers(response.data || []);
+    } catch (error) {
+      console.error("Failed to fetch users:", error);
+      toast.error("Failed to load members. Please try again.");
+    } finally {
+      setIsLoadingUsers(false);
+    }
+  };
+
+  const filteredUsers = allUsers.filter(
     (user) =>
       user.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
       user.email.toLowerCase().includes(searchQuery.toLowerCase())
@@ -46,12 +63,19 @@ const AddMembersModal = ({ isOpen, onClose, groupId }) => {
       return;
     }
 
+    setIsInviting(true);
     try {
-      // TODO: Call API to invite users
+      // TODO: Call API to invite users to group
+      // POST /api/groups/:groupId/invite with { userIds: selectedUsers }
+      
+      // For now, just show success message
       toast.success(`Invited ${selectedUsers.length} member${selectedUsers.length > 1 ? "s" : ""}!`);
       setSelectedUsers([]);
-    } catch {
+    } catch (error) {
+      console.error("Failed to send invites:", error);
       toast.error("Failed to send invites");
+    } finally {
+      setIsInviting(false);
     }
   };
 
@@ -122,30 +146,36 @@ const AddMembersModal = ({ isOpen, onClose, groupId }) => {
                       placeholder="Search by username or email..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="w-full pl-10 pr-4 py-2.5 bg-slate-800/50 border border-slate-700 rounded-lg text-slate-200 placeholder-slate-500 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                      disabled={isLoadingUsers}
+                      className="w-full pl-10 pr-4 py-2.5 bg-slate-800/50 border border-slate-700 rounded-lg text-slate-200 placeholder-slate-500 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all disabled:opacity-50"
                     />
                   </div>
                 </div>
 
                 {/* User List */}
                 <div className="space-y-2 mb-4">
-                  {filteredUsers.length > 0 ? (
+                  {isLoadingUsers ? (
+                    <div className="text-center py-12">
+                      <LoaderIcon className="w-6 h-6 text-indigo-400 mx-auto mb-3 animate-spin" />
+                      <p className="text-sm text-slate-400">Loading members...</p>
+                    </div>
+                  ) : filteredUsers.length > 0 ? (
                     filteredUsers.map((user) => (
                       <button
-                        key={user.id}
-                        onClick={() => toggleUser(user.id)}
+                        key={user._id}
+                        onClick={() => toggleUser(user._id)}
                         className={`w-full p-3 rounded-lg border transition-all text-left ${
-                          selectedUsers.includes(user.id)
+                          selectedUsers.includes(user._id)
                             ? "bg-indigo-500/10 border-indigo-500"
                             : "bg-slate-800/30 border-slate-700 hover:border-slate-600"
                         }`}
                       >
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 rounded-full bg-indigo-500/20 flex items-center justify-center flex-shrink-0 border border-indigo-500/30">
-                            {user.avatar ? (
-                              <img src={user.avatar} alt="" className="w-full h-full object-cover rounded-full" />
+                            {user.profilePic ? (
+                              <img src={user.profilePic} alt={user.username} className="w-full h-full object-cover rounded-full" />
                             ) : (
-                              <span className="text-indigo-400 font-semibold">
+                              <span className="text-indigo-400 font-semibold text-sm">
                                 {user.username[0].toUpperCase()}
                               </span>
                             )}
@@ -159,7 +189,7 @@ const AddMembersModal = ({ isOpen, onClose, groupId }) => {
                             </p>
                           </div>
                           <div className="w-5 h-5 rounded border-2 border-slate-600 flex items-center justify-center flex-shrink-0">
-                            {selectedUsers.includes(user.id) && (
+                            {selectedUsers.includes(user._id) && (
                               <CheckIcon className="w-3 h-3 text-indigo-400" />
                             )}
                           </div>
@@ -170,7 +200,7 @@ const AddMembersModal = ({ isOpen, onClose, groupId }) => {
                     <div className="text-center py-8">
                       <UserPlusIcon className="w-8 h-8 text-slate-600 mx-auto mb-2" />
                       <p className="text-sm text-slate-400">
-                        {searchQuery ? "No members found" : "Search to find members"}
+                        {searchQuery ? "No members found" : allUsers.length === 0 ? "No members available" : "Search to find members"}
                       </p>
                     </div>
                   )}
@@ -234,17 +264,27 @@ const AddMembersModal = ({ isOpen, onClose, groupId }) => {
               <>
                 <button
                   onClick={onClose}
-                  className="flex-1 px-4 py-2.5 bg-slate-800/50 hover:bg-slate-800 text-slate-200 rounded-lg font-medium transition-colors"
+                  disabled={isInviting}
+                  className="flex-1 px-4 py-2.5 bg-slate-800/50 hover:bg-slate-800 text-slate-200 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Skip
                 </button>
                 <button
                   onClick={handleInviteSelected}
-                  disabled={selectedUsers.length === 0}
+                  disabled={selectedUsers.length === 0 || isInviting}
                   className="flex-1 px-4 py-2.5 bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
-                  <UserCheckIcon className="w-4 h-4" />
-                  Invite
+                  {isInviting ? (
+                    <>
+                      <LoaderIcon className="w-4 h-4 animate-spin" />
+                      Inviting...
+                    </>
+                  ) : (
+                    <>
+                      <UserCheckIcon className="w-4 h-4" />
+                      Invite ({selectedUsers.length})
+                    </>
+                  )}
                 </button>
               </>
             ) : (

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { ChevronDownIcon, AlertCircleIcon } from "lucide-react";
 import { Controller } from "react-hook-form";
 
@@ -7,22 +7,12 @@ const AdvancedSettingsStep = ({ form, onValidation }) => {
     control,
     watch,
     formState: { errors },
-    trigger,
   } = form;
 
   const [isExpanded, setIsExpanded] = useState(false);
   const maxMembers = watch("maxMembers");
   const enableGoals = watch("enableGoals");
   const enableScheduling = watch("enableScheduling");
-
-  useEffect(() => {
-    const validateStep = async () => {
-      const isValid = await trigger(["maxMembers"]);
-      onValidation?.(isValid);
-    };
-
-    validateStep();
-  }, [maxMembers, trigger, onValidation]);
 
   return (
     <div className="space-y-4">

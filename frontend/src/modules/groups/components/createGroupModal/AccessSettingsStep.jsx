@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { ShieldIcon, LinkIcon, UserCheckIcon, AlertCircleIcon } from "lucide-react";
 import { Controller } from "react-hook-form";
 
@@ -6,21 +5,11 @@ const AccessSettingsStep = ({ form, privacy, onValidation }) => {
   const {
     control,
     watch,
-    trigger,
   } = form;
 
   const joinPolicy = watch("joinPolicy");
   const allowInviteLink = watch("allowInviteLink");
   const onlyAdminsCanAddMembers = watch("onlyAdminsCanAddMembers");
-
-  useEffect(() => {
-    const validateStep = async () => {
-      const isValid = await trigger(privacy === "public" ? ["joinPolicy"] : []);
-      onValidation?.(isValid);
-    };
-
-    validateStep();
-  }, [joinPolicy, allowInviteLink, onlyAdminsCanAddMembers, trigger, onValidation, privacy]);
 
   return (
     <div className="space-y-6">

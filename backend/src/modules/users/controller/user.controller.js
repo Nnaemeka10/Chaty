@@ -6,6 +6,7 @@
  */
 
 import {
+  getAllUsersService,
   getUserProfileService,
   updateUserProfileService,
 } from '../services/user.service.js';
@@ -103,6 +104,61 @@ export const updateUserProfile = async (req, res) => {
     return res.status(statusCode).json({
       message: error.message,
       code: error.code || 'UPDATE_PROFILE_ERROR',
+    });
+  }
+};
+
+/**
+ * GET /api/users
+ * 
+ * Get all users for member selection
+ * 
+ * Query parameters:
+ * - limit: Number of results (default: 100)
+ * - skip: Pagination skip (default: 0)
+ * - search: Search by username or email (optional)
+ * 
+ * Response: (200 OK)
+ * Array<{
+ *   _id: string,
+ *   username: string,
+ *   email: string,
+ *   profilePic: string | null,
+ *   bio: string,
+ *   createdAt: Date,
+ *   updatedAt: Date
+ * }>
+ * 
+ * Requires: Authentication
+ */
+export const getAllUsers = async (req, res) => {
+  try {
+    const requestingUserId = req.user?._id;
+
+    if (!requestingUserId) {
+      return res.status(401).json({
+        message: 'Authentication required',
+        code: 'UNAUTHORIZED',
+      });
+    }
+
+    const { limit = 100, skip = 0, search = '' } = req.query;
+
+    const users = await getAllUsersService({
+      limit,
+      skip,
+      search,
+      excludeUserId: requestingUserId, // Don't show current user in list
+    });
+
+    return res.status(200).json(users);
+  } catch (error) {
+    const statusCode = error.statusCode || 500;
+    console.error('Get all users error:', error.message);
+
+    return res.status(statusCode).json({
+      message: error.message,
+      code: error.code || 'GET_USERS_ERROR',
     });
   }
 };

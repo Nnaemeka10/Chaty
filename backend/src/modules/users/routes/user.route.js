@@ -3,20 +3,28 @@
  * 
  * API endpoints for user profile management:
  * 
+ * GET    /api/users          - Get all users (for member selection)
  * GET    /api/users/:id      - Get user profile
  * PUT    /api/users/profile  - Update current user profile
  */
 
 import express from 'express';
 import { protectRoute } from '../../../middleware/auth.middleware.js';
-import { getUserProfile, updateUserProfile } from '../controller/user.controller.js';
+import { getAllUsers, getUserProfile, updateUserProfile } from '../controller/user.controller.js';
 
 const router = express.Router();
 
 /**
- * All user profile routes require authentication
+ * All user routes require authentication
  */
 router.use(protectRoute);
+
+/**
+ * GET /api/users
+ * Get all users for member selection
+ * Supports pagination and search
+ */
+router.get('/', getAllUsers);
 
 /**
  * GET /api/users/:id

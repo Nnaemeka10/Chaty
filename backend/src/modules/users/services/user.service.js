@@ -2,6 +2,7 @@
  * Users Service Layer
  * 
  * Handles user profile operations:
+ * - Get all users
  * - Get user profile
  * - Update user profile
  * 
@@ -125,6 +126,54 @@ export const updateUserProfileService = async (userId, profileData) => {
     const err = new Error('Failed to update profile');
     err.code = 'UPDATE_PROFILE_ERROR';
     err.statusCode = 500;
+    throw err;
+  }
+};
+
+/**
+ * Get All Users (for member selection)
+ * 
+ * Retrieves list of all users, excluding password and sensitive fields
+ * Used for member selection in group creation
+ * 
+ * @param {Object} options - Query options
+ * @param {number} options.limit - Max results (default: 100)
+ * @param {number} options.skip - Pagination skip (default: 0)
+ * @param {string} options.search - Search by username or email
+ * @returns {Promise<Array>} Array of users
+ * @throws {Error} If query fails
+ */
+export const getAllUsersService = async (options = {}) => {
+  try {
+    const { limit = 100, skip = 0, search = '', excludeUserId = null } = options;
+
+    const query = {};
+
+    // Search by username or email if provided
+    if (search) {
+      query.$or = [
+        { username: { $regex: search, $options: 'i' } },
+        { email: { $regex: search, $options: 'i' } },
+      ];
+    }
+
+    // Exclude a specific user (e.g., current user)
+    if (excludeUserId) {
+      query._id = { $ne: excludeUserId };
+    }
+
+    const users = await User.find(query)
+      .select('-password')
+      .limit(parseInt(limit))
+      .skip(parseInt(skip))
+      .lean();
+
+    return users;
+  } catch (error) {
+    const err = new Error('Failed to fetch users');
+    err.code = 'GET_USERS_ERROR';
+    err.statusCode = 500;
+    console.error('Get all users error:', error);
     throw err;
   }
 };

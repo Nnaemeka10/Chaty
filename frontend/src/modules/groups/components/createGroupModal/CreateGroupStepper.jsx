@@ -25,7 +25,7 @@ const CreateGroupStepper = ({ isOpen, onClose }) => {
 
   const form = useForm({
     resolver: zodResolver(createGroupSchema),
-    mode: "onChange",
+    mode: "onBlur",
     defaultValues: {
       name: "",
       description: "",
@@ -58,12 +58,27 @@ const CreateGroupStepper = ({ isOpen, onClose }) => {
     }
   }, [currentStep]);
 
-  const handleNext = useCallback(() => {
+  const handleNext = useCallback(async () => {
     if (currentStep < steps.length - 1) {
+      // Validate current step before advancing
+      const stepFieldsToValidate = [
+        ["name", "description", "privacy"],
+        ["joinPolicy"],
+        ["maxMembers"],
+      ];
+      
+      const fieldsToCheck = stepFieldsToValidate[currentStep];
+      const isStepValid = await form.trigger(fieldsToCheck);
+      
+      if (!isStepValid) {
+        toast.error("Please fill in all required fields correctly");
+        return;
+      }
+      
       setCurrentStep(currentStep + 1);
       setIsStepValid(false);
     }
-  }, [currentStep, steps.length]);
+  }, [currentStep, steps.length, form]);
 
   const handleCreate = useCallback(async () => {
     setIsSubmitting(true);
@@ -78,7 +93,7 @@ const CreateGroupStepper = ({ isOpen, onClose }) => {
 
       const formData = form.getValues();
 
-      // Create the group
+      // Create the group (don't pass navigate yet - we'll do it after member modal)
       const newGroup = await createGroup(
         {
           name: formData.name,
@@ -94,18 +109,18 @@ const CreateGroupStepper = ({ isOpen, onClose }) => {
           groupGoal: formData.groupGoal,
           enableScheduling: formData.enableScheduling,
         },
-        navigate
+        null // Don't navigate yet - will do it after member selection
       );
 
       setNewGroupId(newGroup._id);
       setShowAddMembers(true);
+      setIsSubmitting(false);
     } catch (error) {
       console.error("Group creation failed:", error);
       toast.error("Failed to create group. Please try again.");
-    } finally {
       setIsSubmitting(false);
     }
-  }, [form, createGroup, navigate]);
+  }, [form, createGroup]);
 
   const handleCloseModal = useCallback(() => {
     form.reset();

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { UploadIcon, AlertCircleIcon } from "lucide-react";
 import { Controller } from "react-hook-form";
 
@@ -7,24 +7,12 @@ const BasicInfoStep = ({ form, onValidation }) => {
     control,
     watch,
     formState: { errors },
-    trigger,
   } = form;
 
   const name = watch("name");
   const description = watch("description");
   const privacy = watch("privacy");
   const [avatarPreview, setAvatarPreview] = useState(null);
-
-  // Real-time validation
-  useEffect(() => {
-    const validateStep = async () => {
-      const isValid = await trigger(["name", "description", "privacy"]);
-      onValidation?.(isValid && name && description && privacy);
-    };
-
-    const timer = setTimeout(validateStep, 300);
-    return () => clearTimeout(timer);
-  }, [name, description, privacy, trigger, onValidation]);
 
   const handleAvatarChange = (e) => {
     const file = e.target.files?.[0];
