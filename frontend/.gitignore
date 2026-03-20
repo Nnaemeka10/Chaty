@@ -24,3 +24,5 @@ dist-ssr
 *.sw?
 
 readme.md
+*.md
+*.txt
