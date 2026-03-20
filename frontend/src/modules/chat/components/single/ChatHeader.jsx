@@ -1,7 +1,7 @@
 import { useEffect } from "react";
-import { useChatStore } from "../store/useChatStore";
+import { useChatStore } from "../../store/useChatStore";
 import { XIcon, ArrowLeftIcon } from "lucide-react";
-import { useAuthStore } from "../../auth/useAuthStore";
+import { useAuthStore } from "../../../auth/useAuthStore";
 
 const ChatHeader = () => {
     const { selectedUser, setSelectedUser } = useChatStore();

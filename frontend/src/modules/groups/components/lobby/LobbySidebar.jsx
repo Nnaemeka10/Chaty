@@ -1,4 +1,4 @@
-import { BookOpenIcon, CalendarIcon, MessageCircleIcon, PhoneIcon, SettingsIcon } from "lucide-react";
+import { BookOpenIcon, CalendarIcon, MessageCircleIcon, PhoneIcon, SettingsIcon, BoxIcon } from "lucide-react";
 
 const LobbySidebar = ({ activeTab, onTabChange }) => {
   const tabs = [
@@ -7,6 +7,12 @@ const LobbySidebar = ({ activeTab, onTabChange }) => {
       label: "Chat",
       icon: MessageCircleIcon,
       description: "Group conversations",
+    },
+    {
+      id: "inbox",
+      label: "Inbox",
+      icon: BoxIcon,
+      description: "Personal chats",
     },
     {
       id: "call",

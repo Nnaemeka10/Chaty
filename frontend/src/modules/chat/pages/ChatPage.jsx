@@ -1,12 +1,12 @@
 // import { useAuthStore } from "../store/useAuthStore";
 import { useChatStore } from "../store/useChatStore"
 import BorderAnimatedContainer from "../../../components/BorderAnimatedContainer"
-import ProfileHeader from "../components/ProfileHeader";
-import ActiveTabSwitch from "../components/ActiveTabSwitch";
-import ChatsList from "../components/ChatsList";
-import ContactList from "../components/ContactList";
-import ChatContainer from "../components/ChatContainer";
-import NoConversationPlaceholder from "../components/NoConversationPlaceholder";
+import ProfileHeader from "../components/single/ProfileHeader";
+import ActiveTabSwitch from "../components/single/ActiveTabSwitch";
+import ChatsList from "../components/single/ChatsList";
+import ContactList from "../components/single/ContactList";
+import ChatContainer from "../components/single/ChatContainer";
+import NoConversationPlaceholder from "../components/single/NoConversationPlaceholder";
 
 
 

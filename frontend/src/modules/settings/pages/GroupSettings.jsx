@@ -103,27 +103,6 @@ const GroupSettings = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Main Content */}
         <div className="lg:col-span-2 space-y-6">
-          {/* Notice Board */}
-          <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-xl p-6">
-            <h2 className="text-lg sm:text-xl font-semibold text-slate-100 mb-4">
-              Notice Board
-            </h2>
-            <div className="text-slate-400 leading-relaxed text-sm sm:text-md">
-              { group.noticeBoard.length > 0 ? (
-                group.noticeBoard.map(notice => (
-                  <div key={notice._id} className="mb-2 last:mb-0">
-                    {notice.content}
-                  </div>
-                ))
-              ) : (
-                "No notices yet. Group admins can post important updates here."
-              )}
-            </div>
-            <p className="text-slate-500 text-xs sm:text-sm mt-4">
-              Created on {new Date(group.createdAt).toLocaleDateString()}
-            </p>
-          </div>
-
           {/* Discussions Placeholder */}
           <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-xl p-6">
             <h2 className="text-lg sm:text-xl font-semibold text-slate-100 mb-4">

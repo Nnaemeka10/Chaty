@@ -1,7 +1,8 @@
 import { create } from "zustand";
 import toast from "react-hot-toast";
+import { axiosInstance } from "../../lib/axios.js";
 
-// Helper to navigate to group page (will be called from components)
+// Helper to navigate to group page
 export const navigateToGroup = (navigate, groupId) => {
   navigate(`/group/${groupId}`);
 };
@@ -30,7 +31,7 @@ export const useGroupStore = create((set, get) => ({
     activity: "all",
     privacy: "all",
   },
-  sortBy: "recently-active", // "recently-active", "newest", "largest", "alphabetical"
+  sortBy: "recently-active",
 
   // Actions
   setActiveTab: (tab) => set({ activeTab: tab }),
@@ -43,447 +44,264 @@ export const useGroupStore = create((set, get) => ({
   
   setSelectedGroup: (group) => set({ selectedGroup: group }),
 
-  // API calls (to be implemented with actual endpoints)
-  getMyGroups: async () => {
+  /**
+   * Get all groups where user is a member
+   * Calls: GET /api/groups/my-groups
+   */
+  getMyGroups: async (page = 1, limit = 50) => {
     set({ isGroupsLoading: true });
     try {
-      // const res = await axiosInstance.get("/groups/my-groups");
-      // set({ myGroups: res.data });
-      
-      // Mock data for development
-      set({
-        myGroups: [
-          {
-            _id: "1",
-            name: "Computer Science Group",
-            description: "Discussions about CS fundamentals and algorithms",
-            noticeBoard: [
-              {
-                _id: "n1",
-                content: "Next meeting on Friday at 5 PM. Topic: Graph Algorithms.",
-              },
-              {
-                _id: "n2",
-                content: "Don't forget to submit your project proposals by next week!",
-              },
-            ],
-            pinnedMessages: [
-              {
-                _id: "m1",
-                content: "Welcome to the Computer Science Group! Please introduce yourself.",
-              },
-              {
-                _id: "m2",
-                content: "Don't forget to check out the pinned resources for exam prep!",
-              },
-            ],
-            avatar: null,
-            memberCount: 24,
-            topicsCount: 5,
-            privacy: "public",
-            isActive: true,
-            createdAt: new Date("2024-01-15"),
-          },
-          {
-            _id: "2",
-            name: "Medicine Study Circle",
-            description: "Collaborative learning for medical students",
-            noticeBoard: [
-              {
-                _id: "n1",
-                content: "Next meeting on Friday at 5 PM. Topic: Graph Algorithms.",
-              },
-              {
-                _id: "n2",
-                content: "Don't forget to submit your project proposals by next week!",
-              },
-            ],
-            pinnedMessages: [
-              {
-                _id: "m1",
-                content: "Welcome to the Computer Science Group! Please introduce yourself.",
-              },
-              {
-                _id: "m2",
-                content: "Don't forget to check out the pinned resources for exam prep!",
-              },
-            ],
-            avatar: "https://via.placeholder.com/200?text=MED",
-            memberCount: 18,
-            topicsCount: 3,
-            privacy: "private",
-            isActive: true,
-            createdAt: new Date("2024-02-01"),
-          },
-          {
-            _id: "3",
-            name: "Law Review Sessions",
-            description: "Preparation for law exams and case studies",
-            noticeBoard: [
-              {
-                _id: "n1",
-                content: "Next meeting on Friday at 5 PM. Topic: Graph Algorithms.",
-              },
-              {
-                _id: "n2",
-                content: "Don't forget to submit your project proposals by next week!",
-              },
-            ],
-            pinnedMessages: [
-              {
-                _id: "m1",
-                content: "Welcome to the Computer Science Group! Please introduce yourself.",
-              },
-              {
-                _id: "m2",
-                content: "Don't forget to check out the pinned resources for exam prep!",
-              },
-            ],
-            avatar: "https://via.placeholder.com/200?text=LAW",
-            memberCount: 12,
-            topicsCount: 4,
-            privacy: "public",
-            isActive: false,
-            createdAt: new Date("2024-01-20"),
-          },
-        ],
+      const res = await axiosInstance.get("/groups/my-groups", {
+        params: { page, limit },
       });
+      set({ myGroups: res.data.groups || res.data });
     } catch (error) {
-      toast.error(error?.response?.data?.message || "Failed to fetch groups");
+      toast.error(
+        error?.response?.data?.message || "Failed to fetch your groups"
+      );
+      set({ myGroups: [] });
     } finally {
       set({ isGroupsLoading: false });
     }
   },
 
-  getDiscoveredGroups: async () => {
+  /**
+   * Get public groups user can join
+   * Calls: GET /api/groups/discover
+   */
+  getDiscoveredGroups: async (page = 1, limit = 50) => {
     set({ isDiscoveryLoading: true });
     try {
-      // const res = await axiosInstance.get("/groups/discover");
-      // set({ discoveredGroups: res.data });
-
-      // Mock data
-      set({
-        discoveredGroups: [
-          {
-            _id: "4",
-            name: "Engineering Hub",
-            description: "All about mechanical, electrical, and civil engineering",
-            avatar: "https://via.placeholder.com/200?text=ENG",
-            memberCount: 156,
-            topicsCount: 12,
-            privacy: "public",
-            isActive: true,
-            createdAt: new Date("2023-12-01"),
-          },
-          {
-            _id: "5",
-            name: "Mathematics Mastery",
-            description: "From calculus to linear algebra and beyond",
-            avatar: "https://via.placeholder.com/200?text=MATH",
-            memberCount: 89,
-            topicsCount: 8,
-            privacy: "public",
-            isActive: true,
-            createdAt: new Date("2023-11-15"),
-          },
-          {
-            _id: "6",
-            name: "Physics Discussion",
-            description: "Quantum mechanics, thermodynamics, and more",
-            avatar: "https://via.placeholder.com/200?text=PHY",
-            memberCount: 67,
-            topicsCount: 6,
-            privacy: "public",
-            isActive: true,
-            createdAt: new Date("2023-10-20"),
-          },
-          {
-            _id: "7",
-            name: "Chemistry Lab Partners",
-            description: "Collaborate on experiments and theory",
-            avatar: "https://via.placeholder.com/200?text=CHEM",
-            memberCount: 43,
-            topicsCount: 5,
-            privacy: "public",
-            isActive: true,
-            createdAt: new Date("2023-09-10"),
-          },
-          {
-            _id: "8",
-            name: "Business Strategy Club",
-            description: "Case studies and business problem solving",
-            avatar: "https://via.placeholder.com/200?text=BIZ",
-            memberCount: 92,
-            topicsCount: 7,
-            privacy: "public",
-            isActive: true,
-            createdAt: new Date("2023-08-05"),
-          },
-          {
-            _id: "9",
-            name: "History & Humanities",
-            description: "Explore history, literature, and philosophy",
-            avatar: "https://via.placeholder.com/200?text=HIST",
-            memberCount: 54,
-            topicsCount: 9,
-            privacy: "public",
-            isActive: true,
-            createdAt: new Date("2023-07-15"),
-          },
-        ],
+      const res = await axiosInstance.get("/groups/discover", {
+        params: { page, limit },
       });
+      set({ discoveredGroups: res.data.groups || res.data });
     } catch (error) {
-      toast.error(error?.response?.data?.message || "Failed to fetch groups");
+      toast.error(
+        error?.response?.data?.message || "Failed to discover groups"
+      );
+      set({ discoveredGroups: [] });
     } finally {
       set({ isDiscoveryLoading: false });
     }
   },
 
+  /**
+   * Get pending group invitations
+   * Calls: GET /api/groups/invites
+   */
   getGroupInvites: async () => {
     set({ isInvitesLoading: true });
     try {
-      // const res = await axiosInstance.get("/groups/invites");
-      // set({ groupInvites: res.data });
-
-      // Mock data
-      const invites = [
-          {
-            _id: "10",
-            name: "Advanced Python Course",
-            description: "Deep dive into Python for data science",
-            avatar: "https://via.placeholder.com/200?text=PY",
-            memberCount: 34,
-            invitedBy: "Alex Johnson",
-            invitedByAvatar: null,
-            createdAt: new Date("2024-02-20"),
-            joinPolicy: "requires approval",
-          },
-          {
-            _id: "11",
-            name: "Web Development Bootcamp",
-            description: "Frontend, backend, and full-stack development",
-            avatar: "https://via.placeholder.com/200?text=WEB",
-            memberCount: 78,
-            invitedBy: "Sarah Chen",
-            invitedByAvatar: "https://via.placeholder.com/50?text=SC",
-            createdAt: new Date("2024-02-18"),
-            joinPolicy: "instant join",
-          },
-        ];
+      const res = await axiosInstance.get("/groups/invites");
+      const invites = res.data.invites || res.data || [];
       set({
         groupInvites: invites,
         inviteCount: invites.length,
       });
     } catch (error) {
-      toast.error(error?.response?.data?.message || "Failed to fetch invites");
+      toast.error(
+        error?.response?.data?.message || "Failed to fetch invitations"
+      );
+      set({ groupInvites: [], inviteCount: 0 });
     } finally {
       set({ isInvitesLoading: false });
     }
   },
 
+  /**
+   * Get invite count
+   * Calls: GET /api/groups/invites
+   */
   getInviteCount: async () => {
     try {
-      // const res = await axiosInstance.get("/groups/invites/count");
-      // set({ inviteCount: res.data.count });
-
-      // Mock data
-      const mockInvites = [
-      { _id: "10" },
-      { _id: "11" },
-    ];
-
-    set({ inviteCount: mockInvites.length });
+      const res = await axiosInstance.get("/groups/invites");
+      const invites = res.data.invites || res.data || [];
+      set({ inviteCount: invites.length });
     } catch (error) {
-      toast.error(error?.response?.data?.message || "Failed to fetch invite count");
+      console.error("Failed to fetch invite count:", error);
     }
   },
 
+  /**
+   * Get scheduled sessions in user's groups
+   * Calls: GET /api/groups/schedule
+   */
   getGroupSchedule: async () => {
     set({ isScheduleLoading: true });
     try {
-      // const res = await axiosInstance.get("/groups/schedule");
-      // set({ groupSchedule: res.data });
-
-      // Mock data
-      const schedules = [
-          {
-            _id: "12",
-            name: "Weekly Math Review",
-            description: "Review of key concepts and practice problems",
-            avatar: "https://via.placeholder.com/200?text=MATH",
-            scheduledTime: new Date("2024-03-15T18:00"),
-            duration: 60,
-            attendeesCount: 45,
-          },
-          {
-            _id: "13",
-            name: "Physics Lab Session",
-            description: "Hands-on experiments and data analysis",
-            avatar: "https://via.placeholder.com/200?text=PHY",
-            scheduledTime: new Date("2024-03-16T19:30"),
-            duration: 90,
-            attendeesCount: 32,
-          },
-        ];
+      const res = await axiosInstance.get("/groups/schedule");
+      const schedules = res.data.schedules || res.data || [];
       set({
         groupSchedule: schedules,
         scheduleCount: schedules.length,
       });
     } catch (error) {
-      toast.error(error?.response?.data?.message || "Failed to fetch schedule");
+      console.error("Failed to fetch schedule:", error);
+      set({ groupSchedule: [], scheduleCount: 0 });
     } finally {
       set({ isScheduleLoading: false });
     }
   },
 
+  /**
+   * Get schedule count
+   * Calls: GET /api/groups/schedule
+   */
   getScheduleCount: async () => {
     try {
-      // const res = await axiosInstance.get("/groups/schedule/count");
-      // set({ scheduleCount: res.data.count });
-
-      // Mock data
-      const mockSchedule = [
-        { _id: "12" },
-        { _id: "13" },
-      ];
-
-      set({ scheduleCount: mockSchedule.length });
+      const res = await axiosInstance.get("/groups/schedule");
+      const schedules = res.data.schedules || res.data || [];
+      set({ scheduleCount: schedules.length });
     } catch (error) {
-      toast.error(error?.response?.data?.message || "Failed to fetch schedule count");
+      console.error("Failed to fetch schedule count:", error);
     }
   },
 
-  
-
- 
-  createGroup: async (_groupData, navigate) => {
+  /**
+   * Create a new group
+   * User creating the group becomes admin automatically
+   * Calls: POST /api/groups
+   */
+  createGroup: async (groupData, navigate) => {
     try {
-      // const res = await axiosInstance.post("/groups", _groupData);
-      // const newGroup = res.data;
-      
-      // Mock: Create a new group object
-      const newGroup = {
-        _id: Date.now().toString(),
-        name: _groupData.name,
-        description: _groupData.description,
-        privacy: _groupData.privacy,
-        avatar: _groupData.avatar || null,
-        memberCount: 1,
-        topicsCount: 0,
-        isActive: true,
-        createdAt: new Date(),
-        noticeBoard: [],
-        pinnedMessages: [],
-      };
-      
+      const res = await axiosInstance.post("/groups", groupData);
+      const newGroup = res.data;
+
       set((state) => ({ myGroups: [...state.myGroups, newGroup] }));
       toast.success("Group created successfully!");
-      
-      // Navigate to the new group page
+
       if (navigate) {
         navigateToGroup(navigate, newGroup._id);
       }
-      
+
       return newGroup;
     } catch (error) {
-      toast.error(error?.response?.data?.message || "Failed to create group");
+      toast.error(
+        error?.response?.data?.message || "Failed to create group"
+      );
       throw error;
     }
   },
 
- 
-  joinGroup: async (_groupId, navigate) => {
+  /**
+   * Join a public group
+   * Calls: POST /api/groups/:id/join
+   */
+  joinGroup: async (groupId, navigate) => {
     try {
-      // await axiosInstance.post(`/groups/${_groupId}/join`);
+      const res = await axiosInstance.post(`/groups/${groupId}/join`);
+      const joinedGroup = res.data;
+
+      // Update local state
+      set((s) => ({
+        myGroups: [...s.myGroups, joinedGroup],
+        discoveredGroups: s.discoveredGroups.filter(g => g._id !== groupId),
+      }));
+
       toast.success("Group joined successfully!");
-      
-      // Find the group being joined
-      const state = get();
-      const joinedGroup = state.discoveredGroups.find(g => g._id === _groupId);
-      
-      // Add to myGroups if found
-      if (joinedGroup) {
-        set((s) => ({ 
-          myGroups: [...s.myGroups, joinedGroup],
-          discoveredGroups: s.discoveredGroups.filter(g => g._id !== _groupId)
-        }));
-      }
-      
-      // Refetch to update UI
-      get().getDiscoveredGroups();
-      
-      // Navigate to the group page
+
       if (navigate) {
-        navigateToGroup(navigate, _groupId);
+        navigateToGroup(navigate, groupId);
       }
-      
+
       return joinedGroup;
     } catch (error) {
-      toast.error(error?.response?.data?.message || "Failed to join group");
+      toast.error(
+        error?.response?.data?.message || "Failed to join group"
+      );
       throw error;
     }
   },
 
-  // eslint-disable-next-line no-unused-vars
-  leaveGroup: async (_groupId) => {
+  /**
+   * Leave a group
+   * Calls: POST /api/groups/:id/leave
+   */
+  leaveGroup: async (groupId) => {
     try {
-      // await axiosInstance.post(`/groups/${_groupId}/leave`);
+      await axiosInstance.post(`/groups/${groupId}/leave`);
+
+      // Update local state
+      set((s) => ({
+        myGroups: s.myGroups.filter(g => g._id !== groupId),
+      }));
+
       toast.success("Left group successfully");
-      get().getMyGroups();
+      
+      // Refetch to ensure consistency
+      await get().getMyGroups();
     } catch (error) {
-      toast.error(error?.response?.data?.message || "Failed to leave group");
+      toast.error(
+        error?.response?.data?.message || "Failed to leave group"
+      );
+      throw error;
     }
   },
 
+  /**
+   * Open group - navigate to group page
+   */
+  openGroup: (groupId, navigate) => {
+    if (navigate) {
+      navigateToGroup(navigate, groupId);
+    }
+  },
 
-  acceptInvite: async (_groupId, navigate) => {
+  /**
+   * Accept a group invitation
+   * Calls: POST /api/groups/:id/accept-invite
+   */
+  acceptInvite: async (groupId, navigate) => {
     try {
-      // await axiosInstance.post(`/groups/${_groupId}/accept-invite`);
-      toast.success("Invite accepted!");
-      
-      // Find the group being accepted
-      const state = get();
-      const acceptedGroup = state.groupInvites.find(g => g._id === _groupId);
-      
-      // Add to myGroups if found
-      if (acceptedGroup) {
-        set((s) => ({ 
-          myGroups: [...s.myGroups, acceptedGroup],
-          groupInvites: s.groupInvites.filter(g => g._id !== _groupId),
-          inviteCount: Math.max(0, s.inviteCount - 1)
-        }));
-      }
-      
-      get().getGroupInvites();
-      get().getMyGroups();
-      
-      // Navigate to the group page
+      const res = await axiosInstance.post(`/groups/${groupId}/accept-invite`);
+      const acceptedGroup = res.data.group || res.data;
+
+      // Update local state
+      set((s) => ({
+        myGroups: [...s.myGroups, acceptedGroup],
+        groupInvites: s.groupInvites.filter(g => g._id !== groupId),
+        inviteCount: Math.max(0, s.inviteCount - 1),
+      }));
+
+      toast.success("Invitation accepted!");
+
       if (navigate) {
-        navigateToGroup(navigate, _groupId);
+        navigateToGroup(navigate, groupId);
       }
-      
+
       return acceptedGroup;
     } catch (error) {
-      toast.error(error?.response?.data?.message || "Failed to accept invite");
+      toast.error(
+        error?.response?.data?.message || "Failed to accept invitation"
+      );
       throw error;
     }
   },
 
-  // Open group - navigate to group page
-  openGroup: (_groupId, navigate) => {
-    if (navigate) {
-      navigateToGroup(navigate, _groupId);
-    }
-  },
-
-  // eslint-disable-next-line no-unused-vars
-  rejectInvite: async (_groupId) => {
+  /**
+   * Reject a group invitation
+   * Calls: POST /api/groups/:id/reject-invite
+   */
+  rejectInvite: async (groupId) => {
     try {
-      // await axiosInstance.post(`/groups/${_groupId}/reject-invite`);
-      toast.success("Invite rejected");
-      get().getGroupInvites();
+      await axiosInstance.post(`/groups/${groupId}/reject-invite`);
+
+      // Update local state
+      set((s) => ({
+        groupInvites: s.groupInvites.filter(g => g._id !== groupId),
+        inviteCount: Math.max(0, s.inviteCount - 1),
+      }));
+
+      toast.success("Invitation rejected");
+      
+      // Refetch to ensure consistency
+      await get().getGroupInvites();
     } catch (error) {
-      toast.error(error?.response?.data?.message || "Failed to reject invite");
+      toast.error(
+        error?.response?.data?.message || "Failed to reject invitation"
+      );
+      throw error;
     }
   },
 }));

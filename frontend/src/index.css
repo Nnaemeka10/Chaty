@@ -335,6 +335,188 @@
   }
 }
 
+/* Message container animations */
+@keyframes messageSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes messageSlideOut {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes reactionBounce {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.15);
+  }
+}
+
+@keyframes typingBounce {
+  0%,
+  60%,
+  100% {
+    transform: translateY(0);
+  }
+  30% {
+    transform: translateY(-10px);
+  }
+}
+
+.message-group {
+  animation: messageSlideIn 0.3s ease-out;
+}
+
+.message-group-exit {
+  animation: messageSlideOut 0.3s ease-out;
+}
+
+/* Reaction animations */
+.emoji-reaction {
+  animation: reactionBounce 0.4s ease-in-out;
+}
+
+/* Typing indicator animations */
+.typing-dot {
+  animation: typingBounce 1.4s infinite;
+}
+
+/* Smooth transitions */
+.transition-all {
+  transition: all 0.2s ease-in-out;
+}
+
+/* Chat bubble hover effects */
+.chat-bubble {
+  transition: all 0.2s ease-in-out;
+}
+
+.chat-bubble:hover {
+  filter: brightness(1.1);
+}
+
+/* Input focus animations */
+.input {
+  transition: all 0.2s ease-in-out;
+}
+
+.input:focus {
+  animation: none;
+}
+
+/* Button press animations */
+button {
+  transition: all 0.15s ease-in-out;
+}
+
+button:active {
+  transform: scale(0.95);
+}
+
+/* Reaction picker animation */
+.emoji-picker {
+  animation: fadeInScale 0.2s ease-out;
+}
+
+.emoji-picker button {
+  transition: all 0.1s ease-in-out;
+}
+
+.emoji-picker button:hover {
+  transform: scale(1.2) rotate(-10deg);
+}
+
+.emoji-picker button:active {
+  transform: scale(0.9);
+}
+
+/* Message edit mode animation */
+.message-edit-mode {
+  background:
+    linear-gradient(
+      45deg,
+      yellow 25%,
+      transparent 25%,
+      transparent 75%,
+      yellow 75%,
+      yellow
+    ),
+    linear-gradient(
+      45deg,
+      yellow 25%,
+      transparent 25%,
+      transparent 75%,
+      yellow 75%,
+      yellow
+    );
+  background-size: 10px 10px;
+  background-position:
+    0 0,
+    5px 5px;
+  background-color: rgba(234, 179, 8, 0.1);
+  animation: shimmer 2s infinite;
+  border-color: rgba(234, 179, 8, 0.5);
+}
+
+/* Delete animation */
+.message-delete {
+  animation: fadeOutScale 0.3s ease-in-out forwards;
+}
+
+/* Pin animation */
+@keyframes pinPulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.7);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(99, 102, 241, 0);
+  }
+}
+
+.message-pinned {
+  animation: pinPulse 2s infinite;
+}
+
+/* Read receipt animation */
+@keyframes checkMark {
+  0% {
+    opacity: 0;
+    transform: translateX(-5px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.read-receipt-check {
+  animation: checkMark 0.3s ease-out;
+}
+
+/* Search highlight animation */
+.search-highlight {
+  background-color: rgba(99, 102, 241, 0.2);
+  border-left: 3px solid rgba(99, 102, 241, 1);
+  animation: fadeInScale 0.2s ease-out;
+}
+
 /* Header Group Avatar Animation */
 .header-avatar-hover {
   position: relative;

@@ -8,6 +8,7 @@ import VideoCallPage from "../../video/pages/VideoCallPage";
 import GroupSettings from "../../settings/pages/GroupSettings";
 import GroupResourcePage from "../../resources/pages/GroupResourcePage";
 import GroupSchedule from "../../schedule/pages/GroupSchedule";
+import InboxPage from "../../chat/pages/InboxPage";
 
 const GroupLobby = () => {
   const { groupId } = useParams();
@@ -54,6 +55,8 @@ const GroupLobby = () => {
     switch (activeTab) {
       case "chat":
         return <GroupChatPage />;
+      case "inbox":
+        return <InboxPage />;
       case "call":
         return <VideoCallPage />;
       case "resources":
