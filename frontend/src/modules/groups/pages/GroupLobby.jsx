@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from "react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useGroupStore } from "../useGroupStore";
 import LobbyHeader from "../components/lobby/LobbyHeader";
 import LobbySidebar from "../components/lobby/LobbySidebar";
@@ -28,8 +28,8 @@ const GroupLobby = () => {
       setSelectedGroup(foundGroup);
       setIsLoading(false);
     } else {
-      // TODO: Fetch group from backend if not in store
-      setIsLoading(false);
+      
+      setIsLoading(false); 
     }
   }, [groupId, selectedGroup, myGroups, setSelectedGroup]);
 
@@ -44,6 +44,31 @@ const GroupLobby = () => {
     setSearchQuery("");
   }, [activeTab]);
 
+  let content;
+
+switch (activeTab) {
+  case "chat":
+    content = <GroupChatPage searchQuery={searchQuery} />;
+    break;
+  case "inbox":
+    content = <InboxPage searchQuery={searchQuery} />;
+    break;
+  case "call":
+    content = <VideoCallPage />;
+    break;
+  case "resources":
+    content = <GroupResourcePage searchQuery={searchQuery} />;
+    break;
+  case "schedule":
+    content = <GroupSchedule searchQuery={searchQuery} />;
+    break;
+  case "settings":
+    content = <GroupSettings />;
+    break;
+  default:
+    content = <GroupChatPage searchQuery={searchQuery} />;
+}
+
   if (isLoading) {
     return (
       <div className="w-full h-screen flex items-center justify-center bg-slate-900">
@@ -56,25 +81,7 @@ const GroupLobby = () => {
     return null;
   }
 
-  const content = useMemo(() => {
-    switch (activeTab) {
-      case "chat":
-        return <GroupChatPage searchQuery={searchQuery} />;
-      case "inbox":
-        return <InboxPage searchQuery={searchQuery} />;
-      case "call":
-        return <VideoCallPage />;
-      case "resources":
-        return <GroupResourcePage searchQuery={searchQuery} />;
-      case "schedule":
-        return <GroupSchedule searchQuery={searchQuery} />;
-      case "settings":
-        return <GroupSettings />;
-      default:
-        return <GroupChatPage searchQuery={searchQuery} />;
-    }
-  }, [activeTab, searchQuery]);
-
+  
   return (
     <div className="lobby-container w-full h-screen bg-slate-900 flex flex-col overflow-hidden">
       {/* Header */}
