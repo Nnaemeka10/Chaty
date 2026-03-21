@@ -1,19 +1,19 @@
 import { useCallback } from "react";
 import { useChatStore } from "../store/useChatStore";
+import {
+  useDeleteMessage,
+  useEditMessage,
+  useGetGroupMessages,
+  useMarkMessageRead,
+  useReactToMessage,
+  useSendGroupMessage,
+  useTogglePinMessage,
+} from "./useGroupMessages";
 
 export const useGroupChat = (groupId) => {
   const {
-    groupMessages,
-    getGroupMessages,
-    isGroupMessagesLoading,
-    sendGroupMessage,
-    editGroupMessage,
-    deleteGroupMessage,
-    reactToMessage,
-    togglePinMessage,
-    markMessageAsRead,
-    subscribeToGroupMessages,
-    unsubscribeFromGroupMessages,
+    setActiveGroupConversation,
+    clearActiveGroupConversation,
     emitTyping,
     typingUsers,
     groupMembers,
@@ -21,64 +21,66 @@ export const useGroupChat = (groupId) => {
     initiateGroupChatWithUser,
   } = useChatStore();
 
-  const loadMessages = useCallback(async () => {
-    if (groupId) {
-      await getGroupMessages(groupId);
-    }
-  }, [groupId, getGroupMessages]);
+  const { data: groupMessages = [], isLoading: isGroupMessagesLoading, refetch: loadMessages } = useGetGroupMessages(groupId);
+  const sendGroupMessageMutation = useSendGroupMessage(groupId);
+  const editMessageMutation = useEditMessage(groupId);
+  const deleteMessageMutation = useDeleteMessage(groupId);
+  const reactToMessageMutation = useReactToMessage(groupId);
+  const togglePinMessageMutation = useTogglePinMessage(groupId);
+  const markMessageReadMutation = useMarkMessageRead(groupId);
 
   const sendMessage = useCallback(
     async (messageData) => {
       if (groupId) {
-        await sendGroupMessage(groupId, messageData);
+        await sendGroupMessageMutation.mutateAsync(messageData);
       }
     },
-    [groupId, sendGroupMessage]
+    [groupId, sendGroupMessageMutation]
   );
 
   const editMessage = useCallback(
     async (messageId, newText) => {
       if (groupId) {
-        await editGroupMessage(groupId, messageId, newText);
+        await editMessageMutation.mutateAsync({ messageId, newText });
       }
     },
-    [groupId, editGroupMessage]
+    [groupId, editMessageMutation]
   );
 
   const deleteMessage = useCallback(
     async (messageId) => {
       if (groupId) {
-        await deleteGroupMessage(groupId, messageId);
+        await deleteMessageMutation.mutateAsync(messageId);
       }
     },
-    [groupId, deleteGroupMessage]
+    [groupId, deleteMessageMutation]
   );
 
   const addReaction = useCallback(
     async (messageId, emoji) => {
       if (groupId) {
-        await reactToMessage(groupId, messageId, emoji);
+        await reactToMessageMutation.mutateAsync({ messageId, emoji });
       }
     },
-    [groupId, reactToMessage]
+    [groupId, reactToMessageMutation]
   );
 
   const pinMessage = useCallback(
     async (messageId, isPinned) => {
       if (groupId) {
-        await togglePinMessage(groupId, messageId, isPinned);
+        await togglePinMessageMutation.mutateAsync({ messageId, isPinned });
       }
     },
-    [groupId, togglePinMessage]
+    [groupId, togglePinMessageMutation]
   );
 
   const markAsRead = useCallback(
     async (messageId) => {
       if (groupId) {
-        await markMessageAsRead(groupId, messageId);
+        await markMessageReadMutation.mutateAsync(messageId);
       }
     },
-    [groupId, markMessageAsRead]
+    [groupId, markMessageReadMutation]
   );
 
   const emitUserTyping = useCallback(
@@ -112,7 +114,7 @@ export const useGroupChat = (groupId) => {
     emitUserTyping,
     setGroupMembers,
     startPersonalChat,
-    subscribe: () => subscribeToGroupMessages(groupId),
-    unsubscribe: () => unsubscribeFromGroupMessages(groupId),
+    subscribe: () => setActiveGroupConversation(groupId),
+    unsubscribe: () => clearActiveGroupConversation(groupId),
   };
 };

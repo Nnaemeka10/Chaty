@@ -3,6 +3,7 @@ import { axiosInstance } from "../../lib/axios";
 import toast from "react-hot-toast";
 import { io } from "socket.io-client";
 import { getApiError } from "../../lib/util"; 
+import { socketManager } from "../../lib/socketManager";
 
 const BASE_URL = import.meta.env.MODE === 'development' ? "http://localhost:3000" : "/";
 
@@ -99,16 +100,20 @@ export const useAuthStore = create((set, get) => ({
         socket.connect();
 
         set( { socket } );
-
-        //listen for online users event
-        socket.on("onlineUsers", ( userIds ) => {
-            set({ onlineUsers: userIds });
-        });
+        socketManager.attachSocket(socket);
     },
 
     disconnectSocket: () => {
+        socketManager.clearActiveDirectConversation();
+        socketManager.clearActiveGroupConversation();
+        socketManager.detachSocket();
+
         if ( get().socket?.connected ) {
             get().socket.disconnect();
         }
+
+        set({ socket: null, onlineUsers: [] });
     },
 }));
+
+socketManager.registerAuthStore(useAuthStore);

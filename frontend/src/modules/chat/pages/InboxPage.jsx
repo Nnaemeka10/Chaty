@@ -3,10 +3,14 @@ import { useChatStore }  from "../store/useChatStore";
 // import { useAuthStore } from "../../../auth/useAuthStore";
 import { XIcon, MessageCircleIcon } from "lucide-react";
 
-const InboxTab = () => {
+const InboxTab = ({ searchQuery = "" }) => {
   const { groupChatPartners, removeGroupChatPartner, selectedUser, setSelectedUser } = useChatStore();
 //   const { authUser } = useAuthStore();
   const [selectedInboxUser, setSelectedInboxUser] = useState(selectedUser);
+  const normalizedQuery = searchQuery.trim().toLowerCase();
+  const filteredPartners = normalizedQuery
+    ? groupChatPartners.filter((user) => user.username?.toLowerCase().includes(normalizedQuery))
+    : groupChatPartners;
 
   const handleSelectUser = (user) => {
     setSelectedUser(user);
@@ -30,15 +34,15 @@ const InboxTab = () => {
         <div className="px-4 py-4 border-b border-slate-700/50">
           <h2 className="text-lg font-semibold text-slate-100">Inbox</h2>
           <p className="text-xs text-slate-400 mt-1">
-            {groupChatPartners.length} conversation{groupChatPartners.length !== 1 ? "s" : ""}
+            {filteredPartners.length} conversation{filteredPartners.length !== 1 ? "s" : ""}
           </p>
         </div>
 
         {/* Chat List */}
         <div className="flex-1 overflow-y-auto">
-          {groupChatPartners.length > 0 ? (
+          {filteredPartners.length > 0 ? (
             <div className="space-y-1 p-2">
-              {groupChatPartners.map((user) => (
+              {filteredPartners.map((user) => (
                 <button
                   key={user._id}
                   onClick={() => handleSelectUser(user)}
@@ -88,7 +92,9 @@ const InboxTab = () => {
                 <MessageCircleIcon className="w-8 h-8 text-indigo-400" />
               </div>
               <p className="text-slate-400 text-sm">
-                No conversations yet. Start a chat with a group member!
+                {normalizedQuery
+                  ? "No inbox conversations matched your search."
+                  : "No conversations yet. Start a chat with a group member!"}
               </p>
             </div>
           )}

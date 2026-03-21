@@ -1,8 +1,11 @@
-import { useState } from "react";
+import { memo, useMemo, useState } from "react";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
 
 const PinnedMessagesBar = ({ messages }) => {
-  const pinnedMessages = messages.filter((m) => m.isPinned);
+  const pinnedMessages = useMemo(
+    () => messages.filter((message) => message.isPinned),
+    [messages]
+  );
   const [currentIndex, setCurrentIndex] = useState(0);
 
   if (pinnedMessages.length === 0) return null;
@@ -66,4 +69,4 @@ const PinnedMessagesBar = ({ messages }) => {
   );
 };
 
-export default PinnedMessagesBar;
+export default memo(PinnedMessagesBar);

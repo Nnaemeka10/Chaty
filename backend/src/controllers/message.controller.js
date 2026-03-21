@@ -41,7 +41,7 @@ export const getMessageByUserId = async (req, res ) => {
 
 export const sendMessage = async (req, res) => {
     try {
-        const {text, image} = req.body;
+        const {text, image, clientTempId} = req.body;
         const {id: receiverId} = req.params;
         const senderId = req.user._id;
 
@@ -77,14 +77,21 @@ export const sendMessage = async (req, res) => {
 
         await newMessage.save();
 
+        const responseMessage = {
+            ...newMessage.toObject(),
+            clientTempId: clientTempId || null,
+        };
+
         //real time messaging
         const receiverSocketId = getReceiverSocket(receiverId);
 
         if (receiverSocketId) {
-            io.to(receiverSocketId).emit("newMessage", newMessage);
+            io.to(receiverSocketId).emit("newMessage", {
+                message: responseMessage,
+            });
         }
 
-        res.status(201).json(newMessage);
+        res.status(201).json(responseMessage);
 
     } catch (error) {
         console.log("Error in sendMessage controller: ", error.message);

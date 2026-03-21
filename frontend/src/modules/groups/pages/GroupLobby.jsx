@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from "react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useGroupStore } from "../useGroupStore";
 import LobbyHeader from "../components/lobby/LobbyHeader";
 import LobbySidebar from "../components/lobby/LobbySidebar";
@@ -15,6 +15,7 @@ const GroupLobby = () => {
   const navigate = useNavigate();
   const { selectedGroup, myGroups, setSelectedGroup } = useGroupStore();
   const [activeTab, setActiveTab] = useState("chat");
+  const [searchQuery, setSearchQuery] = useState("");
   const [group, setGroup] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -39,6 +40,10 @@ const GroupLobby = () => {
     }
   }, [isLoading, group, navigate]);
 
+  useEffect(() => {
+    setSearchQuery("");
+  }, [activeTab]);
+
   if (isLoading) {
     return (
       <div className="w-full h-screen flex items-center justify-center bg-slate-900">
@@ -51,29 +56,34 @@ const GroupLobby = () => {
     return null;
   }
 
-  const renderContent = () => {
+  const content = useMemo(() => {
     switch (activeTab) {
       case "chat":
-        return <GroupChatPage />;
+        return <GroupChatPage searchQuery={searchQuery} />;
       case "inbox":
-        return <InboxPage />;
+        return <InboxPage searchQuery={searchQuery} />;
       case "call":
         return <VideoCallPage />;
       case "resources":
-        return <GroupResourcePage />;
+        return <GroupResourcePage searchQuery={searchQuery} />;
       case "schedule":
-        return <GroupSchedule />;
+        return <GroupSchedule searchQuery={searchQuery} />;
       case "settings":
         return <GroupSettings />;
       default:
-        return <GroupChatPage />;
+        return <GroupChatPage searchQuery={searchQuery} />;
     }
-  };
+  }, [activeTab, searchQuery]);
 
   return (
     <div className="lobby-container w-full h-screen bg-slate-900 flex flex-col overflow-hidden">
       {/* Header */}
-      <LobbyHeader group={group} />
+      <LobbyHeader
+        group={group}
+        activeTab={activeTab}
+        searchQuery={searchQuery}
+        onSearchQueryChange={setSearchQuery}
+      />
 
       {/* Main Content */}
       <div className="flex-1 flex overflow-hidden">
@@ -82,7 +92,7 @@ const GroupLobby = () => {
 
         {/* Content Area */}
         <div className="flex-1 flex flex-col overflow-auto">
-          {renderContent()}
+          {content}
         </div>
       </div>
     </div>

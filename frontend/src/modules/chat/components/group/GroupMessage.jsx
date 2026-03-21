@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { memo, useState, useRef, useEffect } from "react";
 import {
   Trash2Icon,
   EditIcon,
@@ -11,23 +11,26 @@ import {
   SmileIcon,
   CheckSquare2Icon,
 } from "lucide-react";
-import { useChatStore } from "../../store/useChatStore";
 import { useAuthStore } from "../../../auth/useAuthStore";
 import MessageReactions from "./MessageReactions";
 import MessageActions from "./MessageActions";
 import EmojiReactionPicker from "./EmojiReactionPicker";
 import useClickOutside from "../../../../hooks/useClickOutside";
+import {
+  useDeleteMessage,
+  useEditMessage,
+  useMarkMessageRead,
+  useReactToMessage,
+  useTogglePinMessage,
+} from "../../hooks/useGroupMessages";
 
 const GroupMessage = ({ message, groupId, isOwnMessage }) => {
-  const {
-    editGroupMessage,
-    deleteGroupMessage,
-    reactToMessage,
-    togglePinMessage,
-    markMessageAsRead,
-  } = useChatStore();
-
-  const { authUser } = useAuthStore();
+  const authUser = useAuthStore((state) => state.authUser);
+  const { mutateAsync: editMessage } = useEditMessage(groupId);
+  const { mutateAsync: deleteMessage } = useDeleteMessage(groupId);
+  const { mutateAsync: reactToMessage, mutate: toggleReaction } = useReactToMessage(groupId);
+  const { mutateAsync: togglePinMessage } = useTogglePinMessage(groupId);
+  const { mutate: markMessageRead } = useMarkMessageRead(groupId);
   const [isEditing, setIsEditing] = useState(false);
   const [editText, setEditText] = useState(message.text);
   const [showActions, setShowActions] = useState(false);
@@ -35,39 +38,49 @@ const GroupMessage = ({ message, groupId, isOwnMessage }) => {
   const [showReadReceipts, setShowReadReceipts] = useState(false);
   const actionsRef = useRef(null);
   const pickerRef = useRef(null);
+  const markMessageReadRef = useRef(markMessageRead);
 
   useClickOutside(actionsRef, () => setShowActions(false), showActions);
   useClickOutside(pickerRef, () => setShowReactionPicker(false), showReactionPicker);
+  const senderName = message.sender?.username || "Unknown user";
+  const senderInitial = senderName.charAt(0).toUpperCase();
+
+  useEffect(() => {
+    markMessageReadRef.current = markMessageRead;
+  }, [markMessageRead]);
 
   const handleSaveEdit = async () => {
     if (editText.trim() !== message.text) {
-      await editGroupMessage(groupId, message._id, editText.trim());
+      await editMessage({ messageId: message._id, newText: editText.trim() });
     }
     setIsEditing(false);
   };
 
   const handleDelete = async () => {
     if (window.confirm("Delete this message?")) {
-      await deleteGroupMessage(groupId, message._id);
+      await deleteMessage(message._id);
     }
   };
 
   const handleReact = async (emoji) => {
-    await reactToMessage(groupId, message._id, emoji);
+    await reactToMessage({ messageId: message._id, emoji });
     setShowReactionPicker(false);
   };
 
   const handlePin = async () => {
-    await togglePinMessage(groupId, message._id, message.isPinned);
+    await togglePinMessage({ messageId: message._id, isPinned: message.isPinned });
     setShowActions(false);
   };
 
-  
-useEffect(() => {
-  if (!isOwnMessage && !message.readBy?.includes(authUser._id)) {
-    markMessageAsRead(groupId, message._id);
-  }
-}, [isOwnMessage, message.readBy, authUser._id, groupId, message._id, markMessageAsRead]);
+  const hasCurrentUserReadMessage = message.readBy?.includes(authUser?._id);
+
+  useEffect(() => {
+    if (!authUser?._id || isOwnMessage || hasCurrentUserReadMessage) {
+      return;
+    }
+
+    markMessageReadRef.current(message._id);
+  }, [authUser?._id, hasCurrentUserReadMessage, isOwnMessage, message._id]);
 
   const readCount = message.readBy?.length || 0;
   const unreadIndicator = message.readBy?.includes(authUser._id) ? (
@@ -93,16 +106,16 @@ useEffect(() => {
           className={`flex-shrink-0 w-8 h-8 rounded-full bg-indigo-500/20 flex items-center justify-center text-xs font-medium text-indigo-300 border border-indigo-500/30 overflow-hidden ${
             isOwnMessage ? "order-2" : "order-1"
           }`}
-          title={message.sender?.username}
+          title={senderName}
         >
           {message.sender?.profilePic ? (
             <img
               src={message.sender.profilePic}
-              alt={message.sender.username}
+              alt={senderName}
               className="w-full h-full object-cover"
             />
           ) : (
-            message.sender?.username[0].toUpperCase()
+            senderInitial
           )}
         </div>
 
@@ -111,7 +124,7 @@ useEffect(() => {
           {/* Sender Name */}
           {!isOwnMessage && (
             <span className="text-xs font-medium text-slate-400">
-              {message.sender?.username}
+              {senderName}
             </span>
           )}
 
@@ -303,7 +316,7 @@ useEffect(() => {
             <MessageReactions
               reactions={message.reactions}
               onRemoveReaction={(emoji) =>
-                reactToMessage(groupId, message._id, emoji)
+                toggleReaction({ messageId: message._id, emoji })
               }
             />
           )}
@@ -313,4 +326,4 @@ useEffect(() => {
   );
 };
 
-export default GroupMessage;
+export default memo(GroupMessage);

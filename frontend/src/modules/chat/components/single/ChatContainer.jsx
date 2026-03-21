@@ -5,26 +5,25 @@ import ChatHeader from "./ChatHeader";
 import NoChatHistoryPlaceholder from "./NoChatHistoryPlaceholder";
 import MessagesLoadingSkeleton from "./MessagesLoadingSkeleton";
 import MessageInput from "./MessageInput";
+import { useGetMessagesByUserId } from "../../hooks/useDirectMessages";
 
 const ChatContainer = () => {
   const { 
     selectedUser, 
-    messages, 
-    getMessagesByUserId, 
-    isMessagesLoading,
-    subscribeToNewMessages,
-    unsubscribeFromNewMessages,
+    setActiveDirectConversation,
+    clearActiveDirectConversation,
   } = useChatStore();
   const { authUser } = useAuthStore();
+  const { data: messages = [], isLoading: isMessagesLoading } = useGetMessagesByUserId(selectedUser?._id);
   const messageEndRef = useRef(null);
   
   useEffect( () => {
-    getMessagesByUserId( selectedUser?._id );
+    if (!selectedUser?._id) return;
 
-    subscribeToNewMessages()
+    setActiveDirectConversation(selectedUser._id);
 
-    return () => unsubscribeFromNewMessages();
-  }, [ selectedUser, getMessagesByUserId, subscribeToNewMessages, unsubscribeFromNewMessages ] );
+    return () => clearActiveDirectConversation(selectedUser._id);
+  }, [ selectedUser, setActiveDirectConversation, clearActiveDirectConversation ] );
 
   useEffect( () => {
     if ( messageEndRef.current ) {

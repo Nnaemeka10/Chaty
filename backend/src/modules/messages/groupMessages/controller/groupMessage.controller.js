@@ -67,7 +67,7 @@ export const getGroupMessages = async (req, res) => {
 export const sendGroupMessage = async (req, res) => {
   try {
     const { groupId } = req.params;
-    const { text, image } = req.body;
+    const { text, image, clientTempId } = req.body;
     const senderId = req.user._id;
 
     // Defensive programming: Validate input
@@ -115,6 +115,10 @@ export const sendGroupMessage = async (req, res) => {
 
     // Populate sender info before sending
     await newMessage.populate("senderId", "username email profilePic");
+    const responseMessage = {
+      ...newMessage.toObject(),
+      clientTempId: clientTempId || null,
+    };
 
     // Update group's messageCount and lastMessageAt
     await Group.updateOne(
@@ -127,11 +131,11 @@ export const sendGroupMessage = async (req, res) => {
 
     // Real-time: Broadcast message to all members in group via Socket.io
     io.to(`group-${groupId}`).emit("newGroupMessage", {
-      message: newMessage.toObject(),
+      message: responseMessage,
       groupId,
     });
 
-    res.status(201).json(newMessage);
+    res.status(201).json(responseMessage);
   } catch (error) {
     console.error("Error in sendGroupMessage controller:", error);
     res.status(500).json({

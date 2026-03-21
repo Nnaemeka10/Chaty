@@ -1,6 +1,8 @@
 import { CalendarIcon } from "lucide-react";
 
-const GroupSchedule = () => {
+const GroupSchedule = ({ searchQuery = "" }) => {
+  const normalizedQuery = searchQuery.trim();
+
   return (
     <div className="flex-1 flex flex-col items-center justify-center bg-slate-900/50 backdrop-blur-sm">
       <div className="flex flex-col items-center justify-center gap-4 text-center px-6">
@@ -9,7 +11,9 @@ const GroupSchedule = () => {
         </div>
         <h2 className="text-2xl font-semibold text-slate-100">Group Schedule</h2>
         <p className="text-slate-400 max-w-sm">
-          Plan and manage your group's meetings and events here.
+          {normalizedQuery
+            ? `No schedule items matched "${normalizedQuery}" yet.`
+            : "Plan and manage your group's meetings and events here."}
         </p>
       </div>
     </div>

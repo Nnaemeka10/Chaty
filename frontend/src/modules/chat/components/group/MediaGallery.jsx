@@ -1,15 +1,19 @@
-import { useState } from "react";
+import { memo, useMemo, useState } from "react";
 import { ChevronLeftIcon, ChevronRightIcon, XIcon } from "lucide-react";
 
 const MediaGallery = ({ messages, initialImageIndex = 0, onClose }) => {
-  const images = messages
-    .filter((msg) => msg.image)
-    .map((msg) => ({
-      _id: msg._id,
-      url: msg.image,
-      sender: msg.sender?.username,
-      timestamp: msg.createdAt,
-    }));
+  const images = useMemo(
+    () =>
+      messages
+        .filter((message) => message.image)
+        .map((message) => ({
+          _id: message._id,
+          url: message.image,
+          sender: message.sender?.username,
+          timestamp: message.createdAt,
+        })),
+    [messages]
+  );
 
   const [currentIndex, setCurrentIndex] = useState(initialImageIndex);
 
@@ -105,4 +109,4 @@ const MediaGallery = ({ messages, initialImageIndex = 0, onClose }) => {
   );
 };
 
-export default MediaGallery;
+export default memo(MediaGallery);

@@ -1,50 +1,34 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useChatStore } from "../../store/useChatStore";
 import { useAuthStore } from "../../../auth/useAuthStore";
-import { useGroupStore } from "../../../groups/useGroupStore";
-import GroupChatHeader from "./GroupChatHeader";
 import GroupMessageInput from "./GroupMessageInput";
 import MessagesLoadingSkeleton from "../single/MessagesLoadingSkeleton";
 import GroupMessage from "./GroupMessage";
 import TypingIndicator from "./TypingIndicator";
 import PinnedMessagesBar from "./PinnedMessagesBar";
 import MediaGallery from "./MediaGallery";
-import { SearchIcon, ImageIcon } from "lucide-react";
+import { useGetGroupMessages } from "../../hooks/useGroupMessages";
 
-const GroupChatContainer = ({ groupId }) => {
-  const {
-    groupMessages,
-    getGroupMessages,
-    isGroupMessagesLoading,
-    subscribeToGroupMessages,
-    unsubscribeFromGroupMessages,
-    groupMembers,
-    typingUsers,
-  } = useChatStore();
-  
-  const { authUser } = useAuthStore();
-  const { selectedGroup } = useGroupStore();
+const EMPTY_MESSAGES = [];
+
+const GroupChatContainer = ({ groupId, searchQuery = "" }) => {
+  const setActiveGroupConversation = useChatStore((state) => state.setActiveGroupConversation);
+  const clearActiveGroupConversation = useChatStore((state) => state.clearActiveGroupConversation);
+  const typingUsers = useChatStore((state) => state.typingUsers);
+  const authUser = useAuthStore((state) => state.authUser);
+  const { data, isLoading: isGroupMessagesLoading } = useGetGroupMessages(groupId);
+  const groupMessages = data ?? EMPTY_MESSAGES;
   const messageEndRef = useRef(null);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [filteredMessages, setFilteredMessages] = useState([]);
-  const [showSearch, setShowSearch] = useState(false);
   const [showMediaGallery, setShowMediaGallery] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
-  // Fetch messages on mount
+  // Activate current group for socket room updates
   useEffect(() => {
     if (groupId) {
-      getGroupMessages(groupId);
+      setActiveGroupConversation(groupId);
+      return () => clearActiveGroupConversation(groupId);
     }
-  }, [groupId, getGroupMessages]);
-
-  // Subscribe to real-time updates
-  useEffect(() => {
-    if (groupId) {
-      subscribeToGroupMessages(groupId);
-      return () => unsubscribeFromGroupMessages(groupId);
-    }
-  }, [groupId, subscribeToGroupMessages, unsubscribeFromGroupMessages]);
+  }, [groupId, setActiveGroupConversation, clearActiveGroupConversation]);
 
   // Auto-scroll to bottom
   useEffect(() => {
@@ -53,68 +37,34 @@ const GroupChatContainer = ({ groupId }) => {
     }
   }, [groupMessages]);
 
-  // Filter messages on search
-  useEffect(() => {
-    if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase();
-      const filtered = groupMessages.filter(
-        (msg) =>
-          msg.text?.toLowerCase().includes(query) ||
-          msg.sender?.username?.toLowerCase().includes(query)
-      );
-      setFilteredMessages(filtered);
-    } else {
-      setFilteredMessages(groupMessages);
+  const messagesDisplay = useMemo(() => {
+    const normalizedQuery = searchQuery.trim().toLowerCase();
+    if (!normalizedQuery) {
+      return groupMessages;
     }
-  }, [searchQuery, groupMessages]);
 
-  const messagesDisplay = searchQuery.trim() ? filteredMessages : groupMessages;
-//   const hasImages = messagesDisplay.some((msg) => msg.image);
+    return groupMessages.filter(
+      (message) =>
+        message.text?.toLowerCase().includes(normalizedQuery) ||
+        message.sender?.username?.toLowerCase().includes(normalizedQuery)
+    );
+  }, [groupMessages, searchQuery]);
 
-  const handleImageClick = (index) => {
+  const pinnedMessages = useMemo(
+    () => groupMessages.filter((message) => message.isPinned),
+    [groupMessages]
+  );
+
+  const handleImageClick = useCallback((index) => {
     setSelectedImageIndex(index);
     setShowMediaGallery(true);
-  };
+  }, []);
 
   return (
     <div className="flex flex-col h-full bg-slate-900/50 backdrop-blur-sm">
       {/* Pinned Messages Bar */}
-      {groupMessages.some((m) => m.isPinned) && (
+      {pinnedMessages.length > 0 && (
         <PinnedMessagesBar messages={groupMessages} />
-      )}
-
-      {/* Header */}
-      <GroupChatHeader group={selectedGroup} groupMembers={groupMembers} />
-
-      {/* Search Bar */}
-      {showSearch && (
-        <div className="px-4 py-3 border-b border-slate-700/50 bg-slate-800/30 animate-in fade-in duration-300">
-          <div className="flex items-center gap-2">
-            <SearchIcon className="w-4 h-4 text-slate-400" />
-            <input
-              type="text"
-              placeholder="Search messages..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="flex-1 bg-slate-700/50 border border-slate-600/50 rounded-lg px-3 py-2 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-              autoFocus
-            />
-            <button
-              onClick={() => {
-                setShowSearch(false);
-                setSearchQuery("");
-              }}
-              className="text-xs px-3 py-2 rounded-lg hover:bg-slate-700/50 transition-colors text-slate-400 hover:text-slate-200"
-            >
-              Close
-            </button>
-          </div>
-          {searchQuery.trim() && (
-            <p className="text-xs text-slate-400 mt-2">
-              Found {filteredMessages.length} message{filteredMessages.length !== 1 ? "s" : ""}
-            </p>
-          )}
-        </div>
       )}
 
       {/* Messages Container */}
@@ -159,7 +109,7 @@ const GroupChatContainer = ({ groupId }) => {
       </div>
 
       {/* Message Input */}
-      <GroupMessageInput groupId={groupId} onShowSearch={() => setShowSearch(!showSearch)} />
+      <GroupMessageInput groupId={groupId} />
 
       {/* Media Gallery Modal */}
       {showMediaGallery && (

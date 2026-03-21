@@ -3,6 +3,7 @@ import useKeyboardSound from "../../../../hooks/useKeyboardSound"
 import  { useChatStore } from "../../store/useChatStore";
 import { useRef, useState } from "react";
 import { ImageIcon, SendIcon, XIcon } from "lucide-react";
+import { useSendMessage } from "../../hooks/useDirectMessages";
 
 const MessageInput = () => {
     const { playKeystrokeSound } = useKeyboardSound();
@@ -11,16 +12,17 @@ const MessageInput = () => {
 
     const fileInputRef = useRef(null);
 
-    const { sendMessage, isSoundEnabled } = useChatStore();
+    const { selectedUser, isSoundEnabled } = useChatStore();
+    const sendMessageMutation = useSendMessage(selectedUser?._id);
 
     const handleSendMessage = (e) => {
         e.preventDefault();
-        if (!text.trim() && !imagePreview) return;
+        if (!selectedUser?._id || (!text.trim() && !imagePreview)) return;
         if (isSoundEnabled) {
             playKeystrokeSound();
         }
 
-        sendMessage( { 
+        sendMessageMutation.mutate( { 
             text: text.trim(), 
             image: imagePreview 
         } );
@@ -108,7 +110,7 @@ const MessageInput = () => {
 
             <button 
                 type="submit"
-                disabled={ !text.trim() && !imagePreview }
+                disabled={ (!text.trim() && !imagePreview) || sendMessageMutation.isPending }
                 className="bg-gradient-to-r from-cyan-500 to-cyan-600 hover:from-cyan-600 hover:to-cyan-700 text-white rounded-lg px-4 py-2 transition-all font-medium disabled:opacity-50 disabled:cursor-not-allowed"
             >
                 <SendIcon className="w-5 h-5" />

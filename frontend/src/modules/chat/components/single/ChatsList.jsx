@@ -1,16 +1,13 @@
-import { useEffect } from "react"
 import { useChatStore } from "../../store/useChatStore"
 import UsersLoadingSkeleton from "../../../../components/UsersLoadingSkeleton"
 import NoChatsFound from "./NoChatsFound"
 import { useAuthStore } from "../../../auth/useAuthStore"
+import { useGetMyChatPartners } from "../../hooks/useDirectMessages";
 
 const ChatsList = () => {
-  const { chats, isUsersLoading, getMyChatPartners, setSelectedUser } = useChatStore();
+  const { setSelectedUser } = useChatStore();
   const { onlineUsers } = useAuthStore();
-
-  useEffect( () => {
-    getMyChatPartners();
-  }, [getMyChatPartners]);
+  const { data: chats = [], isLoading: isUsersLoading } = useGetMyChatPartners();
 
   if (isUsersLoading) {
     return <UsersLoadingSkeleton />

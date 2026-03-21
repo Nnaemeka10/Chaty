@@ -1,6 +1,8 @@
 import { BookOpenIcon } from "lucide-react";
 
-const GroupResourcePage = () => {
+const GroupResourcePage = ({ searchQuery = "" }) => {
+  const normalizedQuery = searchQuery.trim();
+
   return (
     <div className="flex-1 flex flex-col items-center justify-center bg-slate-900/50 backdrop-blur-sm">
       <div className="flex flex-col items-center justify-center gap-4 text-center px-6">
@@ -9,7 +11,9 @@ const GroupResourcePage = () => {
         </div>
         <h2 className="text-2xl font-semibold text-slate-100">Resources</h2>
         <p className="text-slate-400 max-w-sm">
-          Access your group's shared resources and documentation here.
+          {normalizedQuery
+            ? `No shared resources matched "${normalizedQuery}" yet.`
+            : "Access your group's shared resources and documentation here."}
         </p>
       </div>
     </div>

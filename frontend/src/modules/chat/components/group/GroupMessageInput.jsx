@@ -1,13 +1,15 @@
 import { useState, useRef } from "react";
-import { ImageIcon, SendIcon, XIcon, FileIcon, SearchIcon } from "lucide-react";
+import { ImageIcon, SendIcon, XIcon, FileIcon } from "lucide-react";
 import { useChatStore } from "../../store/useChatStore";
 import { useAuthStore } from "../../../auth/useAuthStore";
 import useKeyboardSound from "../../../../hooks/useKeyboardSound";
 import toast from "react-hot-toast";
+import { useSendGroupMessage } from "../../hooks/useGroupMessages";
 
-const GroupMessageInput = ({ groupId, onShowSearch }) => {
-  const { sendGroupMessage, emitTyping, isSoundEnabled } = useChatStore();
+const GroupMessageInput = ({ groupId }) => {
+  const { emitTyping, isSoundEnabled } = useChatStore();
   const { authUser } = useAuthStore();
+  const sendGroupMessageMutation = useSendGroupMessage(groupId);
   const [text, setText] = useState("");
   const [imagePreview, setImagePreview] = useState(null);
   const [filePreview, setFilePreview] = useState(null);
@@ -24,7 +26,7 @@ const GroupMessageInput = ({ groupId, onShowSearch }) => {
       playKeystrokeSound();
     }
 
-    sendGroupMessage(groupId, {
+    sendGroupMessageMutation.mutate({
       text: text.trim(),
       image: imagePreview || null,
       file: filePreview || null,
@@ -111,7 +113,7 @@ const GroupMessageInput = ({ groupId, onShowSearch }) => {
   };
 
   return (
-    <div className="border-t border-slate-700/50 p-4 bg-slate-800/30 backdrop-blur-sm">
+    <div className="border-t border-slate-700/50 px-3 py-3 sm:px-4 sm:py-4 bg-slate-800/30 backdrop-blur-sm">
       {/* Preview Area */}
       {(imagePreview || filePreview) && (
         <div className="max-w-4xl mx-auto mb-3 flex flex-wrap gap-3">
@@ -159,7 +161,7 @@ const GroupMessageInput = ({ groupId, onShowSearch }) => {
       {/* Input Area */}
       <form
         onSubmit={handleSendMessage}
-        className="max-w-4xl mx-auto flex items-end gap-3"
+        className="max-w-4xl mx-auto flex flex-col gap-3"
       >
         {/* Hidden File Inputs */}
         <input
@@ -179,56 +181,51 @@ const GroupMessageInput = ({ groupId, onShowSearch }) => {
           id="file-upload"
         />
 
-        {/* Input Field */}
-        <div className="flex-1 flex flex-col gap-2">
-          <input
-            type="text"
-            placeholder="Type a message..."
-            value={text}
-            onChange={handleTextChange}
-            className="flex-1 bg-slate-800/50 border border-slate-700/50 placeholder-slate-500 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-slate-200 text-sm transition-all duration-200"
-          />
-        </div>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
+          {/* Input Field */}
+          <div className="flex-1 flex flex-col gap-2 min-w-0">
+            <input
+              type="text"
+              placeholder="Type a message..."
+              value={text}
+              onChange={handleTextChange}
+              className="w-full bg-slate-800/50 border border-slate-700/50 placeholder-slate-500 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-slate-200 text-sm transition-all duration-200"
+            />
+          </div>
 
-        {/* Action Buttons */}
-        <div className="flex items-center gap-2">
-          {/* Search Button */}
-          <button
-            type="button"
-            onClick={onShowSearch}
-            className="p-2.5 hover:bg-slate-700/50 rounded-lg transition-colors text-slate-400 hover:text-slate-200"
-            title="Search messages"
-          >
-            <SearchIcon className="w-5 h-5" />
-          </button>
+          {/* Action Buttons */}
+          <div className="flex items-center justify-between gap-2 sm:justify-end sm:flex-shrink-0">
+            <div className="grid grid-cols-2 gap-2 sm:flex">
+              {/* Image Upload */}
+              <label
+                htmlFor="image-upload"
+                className="flex h-11 w-11 items-center justify-center rounded-xl border border-slate-700/50 bg-slate-800/50 text-slate-400 transition-colors hover:bg-slate-700/50 hover:text-slate-200 cursor-pointer"
+                title="Upload image"
+              >
+                <ImageIcon className="w-5 h-5" />
+              </label>
 
-          {/* Image Upload */}
-          <label
-            htmlFor="image-upload"
-            className="p-2.5 hover:bg-slate-700/50 rounded-lg transition-colors text-slate-400 hover:text-slate-200 cursor-pointer"
-            title="Upload image"
-          >
-            <ImageIcon className="w-5 h-5" />
-          </label>
+              {/* File Upload */}
+              <label
+                htmlFor="file-upload"
+                className="flex h-11 w-11 items-center justify-center rounded-xl border border-slate-700/50 bg-slate-800/50 text-slate-400 transition-colors hover:bg-slate-700/50 hover:text-slate-200 cursor-pointer"
+                title="Upload file"
+              >
+                <FileIcon className="w-5 h-5" />
+              </label>
+            </div>
 
-          {/* File Upload */}
-          <label
-            htmlFor="file-upload"
-            className="p-2.5 hover:bg-slate-700/50 rounded-lg transition-colors text-slate-400 hover:text-slate-200 cursor-pointer"
-            title="Upload file"
-          >
-            <FileIcon className="w-5 h-5" />
-          </label>
-
-          {/* Send Button */}
-          <button
-            type="submit"
-            disabled={!text.trim() && !imagePreview && !filePreview}
-            className="p-2.5 bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-700 disabled:cursor-not-allowed rounded-lg transition-colors text-white"
-            title="Send message"
-          >
-            <SendIcon className="w-5 h-5" />
-          </button>
+            {/* Send Button */}
+            <button
+              type="submit"
+              disabled={(!text.trim() && !imagePreview && !filePreview) || sendGroupMessageMutation.isPending}
+              className="flex h-11 min-w-[72px] items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 text-sm font-medium text-white transition-colors hover:bg-indigo-700 disabled:bg-slate-700 disabled:cursor-not-allowed sm:min-w-[56px] sm:px-3"
+              title="Send message"
+            >
+              <SendIcon className="w-5 h-5" />
+              <span className="sm:hidden">Send</span>
+            </button>
+          </div>
         </div>
       </form>
     </div>
