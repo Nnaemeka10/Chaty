@@ -2,27 +2,31 @@ import { useParams, useNavigate } from "react-router";
 import { ArrowLeftIcon, SettingsIcon, UsersIcon, MessageSquareIcon } from "lucide-react";
 import { useGroupStore } from "../../groups/useGroupStore";
 import { useEffect } from "react";
+import { useGetMyGroups } from "../../groups/hooks/useGroups";
 
 const GroupSettings = () => {
   const { groupId } = useParams();
   const navigate = useNavigate();
-  const { selectedGroup, myGroups } = useGroupStore();
+  const selectedGroup = useGroupStore((state) => state.selectedGroup);
+  const { data: myGroups = [], isLoading } = useGetMyGroups();
 
   // Find the group from the store
   // change this later to fetch the group details using the groupId from the backend in case the user refreshes the page or directly lands on the group page via a link, since in those cases the selectedGroup in the store would be null and we won't have the group details to display, so we need to fetch it using the groupId from the URL, and we can keep the selectedGroup in the store for quick access when navigating within the app without refreshing
-  const group = selectedGroup || myGroups.find((g) => g._id === groupId);
+  const group = selectedGroup?._id === groupId
+    ? selectedGroup
+    : myGroups.find((item) => item._id === groupId) || null;
 
   useEffect(() => {
     // Redirect if group not found
-    if (!group && !selectedGroup) {
+    if (!isLoading && !group) {
       navigate("/");
     }
-  }, [group, selectedGroup, navigate]);
+  }, [group, isLoading, navigate]);
 
   if (!group) {
     return (
       <div className="w-full max-w-7xl mx-auto min-h-screen flex items-center justify-center">
-        <div className="text-slate-400">Loading group...</div>
+        <div className="text-slate-400">{isLoading ? "Loading group..." : "Group not found"}</div>
       </div>
     );
   }

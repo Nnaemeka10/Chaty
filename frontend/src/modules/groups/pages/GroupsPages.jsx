@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
-import { useGroupStore } from "../useGroupStore";
+import { navigateToGroup, useGroupStore } from "../useGroupStore";
 import GroupsHeader from "../components/GroupsHeader";
 import SearchFilterBar from "../components/SearchFilterBar";
 import TabsNavigation from "../components/TabsNavigation";
@@ -10,61 +10,43 @@ import ScheduleCard from "../components/ScheduleCard";
 import GroupsLoadingSkeleton from "../components/GroupsLoadingSkeleton";
 import EmptyStates from "../components/EmptyStates";
 import CreateGroupModal from "../components/createGroupModal/CreateGroupModal";
+import {
+  useAcceptInvite,
+  useGetDiscoveredGroups,
+  useGetGroupInvites,
+  useGetGroupSchedule,
+  useGetMyGroups,
+  useJoinGroup,
+  useRejectInvite,
+} from "../hooks/useGroups";
 
 const GroupsPages = () => {
   const navigate = useNavigate();
-  const {
-    // State
-    myGroups,
-    discoveredGroups,
-    groupInvites,
-    groupSchedule,
-    activeTab,
-    searchQuery,
-    filters,
-    sortBy,
-
-    // Loading states
-    isGroupsLoading,
-    isDiscoveryLoading,
-    isInvitesLoading,
-    isScheduleLoading,
-
-    // API calls
-    getMyGroups,
-    getDiscoveredGroups,
-    getGroupInvites,
-    getInviteCount,
-    getGroupSchedule,
-    getScheduleCount,
-    joinGroup,
-    acceptInvite,
-    rejectInvite,
-    openGroup,
-  } = useGroupStore();
+  const activeTab = useGroupStore((state) => state.activeTab);
+  const searchQuery = useGroupStore((state) => state.searchQuery);
+  const filters = useGroupStore((state) => state.filters);
+  const sortBy = useGroupStore((state) => state.sortBy);
+  const { data: myGroups = [], isLoading: isGroupsLoading } = useGetMyGroups({
+    enabled: activeTab === "my-groups" || activeTab === "discover",
+  });
+  const { data: discoveredGroups = [], isLoading: isDiscoveryLoading } = useGetDiscoveredGroups({
+    enabled: activeTab === "discover",
+  });
+  const { data: groupInvites = [], isLoading: isInvitesLoading } = useGetGroupInvites({
+    enabled: activeTab === "invites",
+  });
+  const { data: groupSchedule = [], isLoading: isScheduleLoading } = useGetGroupSchedule({
+    enabled: activeTab === "schedule",
+  });
+  const joinGroupMutation = useJoinGroup();
+  const acceptInviteMutation = useAcceptInvite();
+  const rejectInviteMutation = useRejectInvite();
 
   const [showCreateModal, setShowCreateModal] = useState(false);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [activeTab]);
-
-  // Fetch data on mount and when tab changes
-  //later seperate the use effects for each tab and also for the counts and remove the eccess dependencies aside from active tab since zustand fxns are stable and do not trigger re-renders, there is no need to add them as dependencies, we can just disable the eslint warning for that line
-  useEffect(() => {
-    getInviteCount();
-    getScheduleCount();
-
-    if (activeTab === "my-groups") {
-      getMyGroups();
-    } else if (activeTab === "discover") {
-      getDiscoveredGroups();
-    } else if (activeTab === "invites") {
-      getGroupInvites();
-    } else if (activeTab === "schedule") {
-      getGroupSchedule();
-    }
-  }, [activeTab, getMyGroups, getDiscoveredGroups, getGroupInvites, getGroupSchedule, getInviteCount, getScheduleCount]);
 
   // Filter and sort groups based on search and filters
   const filteredGroups = (groups) => {
@@ -146,13 +128,15 @@ const GroupsPages = () => {
 
   const cardActions = {
     onOpen: (groupId) => {
-      openGroup(groupId, navigate);
+      navigateToGroup(navigate, groupId);
     },
-    onJoin: (groupId) => {
-      joinGroup(groupId, navigate);
+    onJoin: async (groupId) => {
+      await joinGroupMutation.mutateAsync(groupId);
+      navigateToGroup(navigate, groupId);
     },
-    onAccept: (groupId) => {
-      acceptInvite(groupId, navigate);
+    onAccept: async (groupId) => {
+      await acceptInviteMutation.mutateAsync(groupId);
+      navigateToGroup(navigate, groupId);
     },
     isMember: (groupId) => myGroups.some((g) => g._id === groupId),
     isInvited: (groupId) =>
@@ -208,8 +192,8 @@ const GroupsPages = () => {
                   <InviteCard
                     key={invite._id}
                     invite={invite}
-                    onAccept={acceptInvite}
-                    onReject={rejectInvite}
+                    onAccept={acceptInviteMutation.mutateAsync}
+                    onReject={rejectInviteMutation.mutateAsync}
                   />
                 ))}
               </div>

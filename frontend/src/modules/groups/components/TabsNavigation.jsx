@@ -1,7 +1,13 @@
 import { useGroupStore } from "../useGroupStore";
+import { useGetGroupInvites, useGetGroupSchedule } from "../hooks/useGroups";
 
 const TabsNavigation = () => {
-  const { activeTab, setActiveTab, inviteCount, scheduleCount } = useGroupStore();
+  const activeTab = useGroupStore((state) => state.activeTab);
+  const setActiveTab = useGroupStore((state) => state.setActiveTab);
+  const { data: groupInvites = [] } = useGetGroupInvites();
+  const { data: groupSchedule = [] } = useGetGroupSchedule();
+  const inviteCount = groupInvites.length;
+  const scheduleCount = groupSchedule.length;
 
   return (
     <div className="flex items-center justify-center sm:justify-between sm:gap-8 gap-4 mb-6 border-b border-slate-700/50 pb-0">

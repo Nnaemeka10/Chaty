@@ -3,7 +3,6 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { XIcon } from "lucide-react";
 import { useNavigate } from "react-router";
-import { useGroupStore } from "../../useGroupStore";
 import { createGroupSchema } from "../../schemas/createGroupSchema";
 import BasicInfoStep from "./BasicInfoStep";
 import AccessSettingsStep from "./AccessSettingsStep";
@@ -12,16 +11,16 @@ import GroupPreviewCard from "./GroupPreviewCard";
 import CreateGroupFooter from "./CreateGroupFooter";
 import AddMembersModal from "./AddMembersModal";
 import toast from "react-hot-toast";
+import { useCreateGroup } from "../../hooks/useGroups";
 
 const CreateGroupStepper = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
-  const { createGroup } = useGroupStore();
+  const createGroupMutation = useCreateGroup();
 
   const [currentStep, setCurrentStep] = useState(0);
   const [isStepValid, setIsStepValid] = useState(false);
   const [showAddMembers, setShowAddMembers] = useState(false);
   const [newGroupId, setNewGroupId] = useState(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm({
     resolver: zodResolver(createGroupSchema),
@@ -81,46 +80,38 @@ const CreateGroupStepper = ({ isOpen, onClose }) => {
   }, [currentStep, steps.length, form]);
 
   const handleCreate = useCallback(async () => {
-    setIsSubmitting(true);
     try {
       // Validate entire form
       const isFormValid = await form.trigger();
       if (!isFormValid) {
         toast.error("Please fill in all required fields");
-        setIsSubmitting(false);
         return;
       }
 
       const formData = form.getValues();
 
       // Create the group (don't pass navigate yet - we'll do it after member modal)
-      const newGroup = await createGroup(
-        {
-          name: formData.name,
-          description: formData.description,
-          privacy: formData.privacy,
-          avatar: formData.avatar,
-          joinPolicy: formData.joinPolicy,
-          allowInviteLink: formData.allowInviteLink,
-          onlyAdminsCanAddMembers: formData.onlyAdminsCanAddMembers,
-          messageRetention: formData.messageRetention,
-          maxMembers: formData.maxMembers,
-          enableGoals: formData.enableGoals,
-          groupGoal: formData.groupGoal,
-          enableScheduling: formData.enableScheduling,
-        },
-        null // Don't navigate yet - will do it after member selection
-      );
+      const newGroup = await createGroupMutation.mutateAsync({
+        name: formData.name,
+        description: formData.description,
+        privacy: formData.privacy,
+        avatar: formData.avatar,
+        joinPolicy: formData.joinPolicy,
+        allowInviteLink: formData.allowInviteLink,
+        onlyAdminsCanAddMembers: formData.onlyAdminsCanAddMembers,
+        messageRetention: formData.messageRetention,
+        maxMembers: formData.maxMembers,
+        enableGoals: formData.enableGoals,
+        groupGoal: formData.groupGoal,
+        enableScheduling: formData.enableScheduling,
+      });
 
       setNewGroupId(newGroup._id);
       setShowAddMembers(true);
-      setIsSubmitting(false);
     } catch (error) {
       console.error("Group creation failed:", error);
-      toast.error("Failed to create group. Please try again.");
-      setIsSubmitting(false);
     }
-  }, [form, createGroup]);
+  }, [createGroupMutation, form]);
 
   const handleCloseModal = useCallback(() => {
     form.reset();
@@ -226,7 +217,7 @@ const CreateGroupStepper = ({ isOpen, onClose }) => {
             onNext={handleNext}
             onCreate={handleCreate}
             isStepValid={isStepValid}
-            isSubmitting={isSubmitting}
+            isSubmitting={createGroupMutation.isPending}
           />
         </div>
       </div>

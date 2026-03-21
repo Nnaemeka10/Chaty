@@ -9,29 +9,26 @@ import GroupSettings from "../../settings/pages/GroupSettings";
 import GroupResourcePage from "../../resources/pages/GroupResourcePage";
 import GroupSchedule from "../../schedule/pages/GroupSchedule";
 import InboxPage from "../../chat/pages/InboxPage";
+import { useGetMyGroups } from "../hooks/useGroups";
 
 const GroupLobby = () => {
   const { groupId } = useParams();
   const navigate = useNavigate();
-  const { selectedGroup, myGroups, setSelectedGroup } = useGroupStore();
+  const selectedGroup = useGroupStore((state) => state.selectedGroup);
+  const setSelectedGroup = useGroupStore((state) => state.setSelectedGroup);
   const [activeTab, setActiveTab] = useState("chat");
   const [searchQuery, setSearchQuery] = useState("");
-  const [group, setGroup] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const { data: myGroups = [], isLoading } = useGetMyGroups();
+  const group = selectedGroup?._id === groupId
+    ? selectedGroup
+    : myGroups.find((item) => item._id === groupId) || null;
 
   // Get group data
   useEffect(() => {
-    const foundGroup = selectedGroup || myGroups.find((g) => g._id === groupId);
-    
-    if (foundGroup) {
-      setGroup(foundGroup);
-      setSelectedGroup(foundGroup);
-      setIsLoading(false);
-    } else {
-      
-      setIsLoading(false); 
+    if (group && selectedGroup?._id !== group._id) {
+      setSelectedGroup(group);
     }
-  }, [groupId, selectedGroup, myGroups, setSelectedGroup]);
+  }, [group, selectedGroup?._id, setSelectedGroup]);
 
   // Redirect if group not found
   useEffect(() => {
