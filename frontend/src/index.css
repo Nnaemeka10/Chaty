@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ==========================================================================
+   Base Layer
+   ========================================================================== */
+
 @layer base {
   html {
     font-family:
@@ -13,14 +17,46 @@
       Arial,
       sans-serif;
   }
+
   body {
     @apply bg-app-bg text-text-primary antialiased;
   }
+
+  button {
+    transition: all 0.15s ease-in-out;
+  }
+
+  button:active {
+    transform: scale(0.95);
+  }
+
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: rgba(71, 85, 105, 0.5);
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(71, 85, 105, 0.8);
+  }
 }
+
+/* ==========================================================================
+   Shared Component Primitives
+   Keep these generic and reusable across modules.
+   ========================================================================== */
 
 @layer components {
   .card {
-    @apply bg-app-surface border border-app-border rounded-xl shadow-card;
+    @apply rounded-xl border border-app-border bg-app-surface shadow-card;
   }
 
   .btn {
@@ -28,20 +64,19 @@
   }
 
   .btn-primary {
-    @apply bg-primary text-text-inverse hover:bg-primary-hover focus:outline-none focus:ring-primary focus:ring-2 focus:ring-offset-2;
+    @apply bg-primary text-text-inverse hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2;
   }
 
   .btn-secondary {
-    @apply bg-app-subtle text-text-primary hover:bg-gray-200 border border-app-border;
+    @apply border border-app-border bg-app-subtle text-text-primary hover:bg-gray-200;
   }
 
   .btn-danger {
     @apply btn bg-danger text-text-inverse hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-danger focus:ring-offset-2;
   }
 
-  .input {
-    @apply w-full rounded-lg border border-app-border bg-app-surface px-3 py-2 text-sm
-           placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2;
+  .app-input {
+    @apply w-full rounded-lg border border-app-border bg-app-surface px-3 py-2 text-sm placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2;
   }
 
   .badge {
@@ -61,44 +96,23 @@
   }
 }
 
+/* ==========================================================================
+   Shared Motion Tokens
+   Keyframes are grouped here so feature sections below only reference them.
+   ========================================================================== */
+
 @property --border-angle {
   inherits: false;
   initial-value: 0deg;
-  syntax: '<angle>';
+  syntax: "<angle>";
 }
 
-.input {
-  @apply w-full bg-slate-800/50 border border-slate-700 rounded-lg py-2 pl-10 pr-4 text-slate-200 placeholder-slate-400 focus:ring-2 focus:ring-cyan-500 focus:border-transparent;
-}
-
-.auth-input-icon {
-  @apply absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 size-5;
-}
-
-.auth-input-label {
-  @apply block text-sm font-medium text-slate-300 mb-2;
-}
-
-.auth-badge {
-  @apply inline-flex items-center px-3 py-1 text-xs font-medium rounded-full bg-cyan-500/20 text-cyan-300;
-}
-
-.auth-btn {
-  @apply w-full bg-cyan-500 text-white rounded-lg py-2.5 font-medium
-  hover:bg-cyan-600 focus:ring-2 focus:ring-cyan-500;
-}
-
-.auth-link {
-  @apply px-4 py-2 inline-block bg-cyan-500/10 rounded-lg text-cyan-400
-  hover:text-cyan-500 text-sm transition-colors;
-}
-
-/* Create Group Modal Animations */
 @keyframes slideIn {
   from {
     opacity: 0;
     transform: translateX(20px);
   }
+
   to {
     opacity: 1;
     transform: translateX(0);
@@ -110,9 +124,46 @@
     opacity: 1;
     transform: translateX(0);
   }
+
   to {
     opacity: 0;
     transform: translateX(-20px);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
@@ -121,6 +172,7 @@
     opacity: 0;
     transform: scale(0.95);
   }
+
   to {
     opacity: 1;
     transform: scale(1);
@@ -132,6 +184,7 @@
     opacity: 1;
     transform: scale(1);
   }
+
   to {
     opacity: 0;
     transform: scale(0.95);
@@ -142,6 +195,7 @@
   0% {
     background-position: -1000px 0;
   }
+
   100% {
     background-position: 1000px 0;
   }
@@ -152,6 +206,7 @@
     max-height: 0;
     opacity: 0;
   }
+
   to {
     max-height: 500px;
     opacity: 1;
@@ -163,11 +218,166 @@
     max-height: 500px;
     opacity: 1;
   }
+
   to {
     max-height: 0;
     opacity: 0;
   }
 }
+
+@keyframes pulseSubtle {
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.7;
+  }
+}
+
+@keyframes tabSwitch {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes groupsTabSlideFromRight {
+  from {
+    opacity: 0;
+    transform: translate3d(24px, 0, 0);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes groupsTabSlideFromLeft {
+  from {
+    opacity: 0;
+    transform: translate3d(-24px, 0, 0);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes messageSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes messageSlideOut {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  to {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes reactionBounce {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.15);
+  }
+}
+
+@keyframes typingBounce {
+  0%,
+  60%,
+  100% {
+    transform: translateY(0);
+  }
+
+  30% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes pinPulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.7);
+  }
+
+  50% {
+    box-shadow: 0 0 0 8px rgba(99, 102, 241, 0);
+  }
+}
+
+@keyframes checkMark {
+  0% {
+    opacity: 0;
+    transform: translateX(-5px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* ==========================================================================
+   Auth Module
+   These classes are used only by the login/signup screens.
+   ========================================================================== */
+
+.auth-input {
+  @apply w-full rounded-lg border border-slate-700 bg-slate-800/50 py-2 pl-10 pr-4 text-slate-200 placeholder-slate-400 transition-all duration-200 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-cyan-500;
+}
+
+.auth-input:focus {
+  animation: none;
+}
+
+.auth-input-icon {
+  @apply absolute left-3 top-1/2 size-5 -translate-y-1/2 text-slate-400;
+}
+
+.auth-input-label {
+  @apply mb-2 block text-sm font-medium text-slate-300;
+}
+
+.auth-badge {
+  @apply inline-flex items-center rounded-full bg-cyan-500/20 px-3 py-1 text-xs font-medium text-cyan-300;
+}
+
+.auth-btn {
+  @apply w-full rounded-lg bg-cyan-500 py-2.5 font-medium text-white hover:bg-cyan-600 focus:ring-2 focus:ring-cyan-500;
+}
+
+.auth-link {
+  @apply inline-block rounded-lg bg-cyan-500/10 px-4 py-2 text-sm text-cyan-400 transition-colors hover:text-cyan-500;
+}
+
+/* ==========================================================================
+   Create Group Modal
+   ========================================================================== */
 
 .create-group-modal-content {
   animation: slideIn 0.3s ease-out;
@@ -198,8 +408,8 @@
 }
 
 .step-indicator-active::after {
-  content: '';
-  @apply absolute bottom-0 left-0 right-0 h-1 bg-indigo-500 rounded-full;
+  content: "";
+  @apply absolute bottom-0 left-0 right-0 h-1 rounded-full bg-indigo-500;
   animation: slideIn 0.3s ease-out;
 }
 
@@ -213,86 +423,31 @@
   background-size: 1000px 100%;
   animation: shimmer 2s infinite;
 }
-/* Lobby Sidebar & Header Animations */
-@keyframes slideInLeft {
-  from {
-    opacity: 0;
-    transform: translateX(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
 
-@keyframes slideInRight {
-  from {
-    opacity: 0;
-    transform: translateX(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
+/* ==========================================================================
+   Lobby Module
+   ========================================================================== */
 
-@keyframes slideDown {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes pulse-subtle {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.7;
-  }
-}
-
-@keyframes tabSwitch {
-  from {
-    opacity: 0;
-    transform: scale(0.98);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-/* Lobby Container */
 .lobby-container {
   animation: slideInRight 0.4s ease-out;
 }
 
-/* Lobby Sidebar */
 .lobby-sidebar {
   animation: slideInLeft 0.4s ease-out;
 }
 
-/* Lobby Tab Button */
 .lobby-tab-button {
   animation: slideInLeft 0.3s ease-out;
-
-  &:active {
-    transform: scale(0.95);
-  }
 }
 
-/* Group Tooltip */
+.lobby-tab-button:active {
+  transform: scale(0.95);
+}
+
 .lobby-tab-button .group-hover\:opacity-100 {
   animation: slideInRight 0.2s ease-out;
 }
 
-/* Lobby Header Menu */
 .lobby-header-menu {
   animation: slideDown 0.2s ease-out;
   backdrop-filter: blur(4px);
@@ -306,78 +461,129 @@
   padding-left: 1.25rem;
 }
 
-/* Tab Content Animation */
 .tab-content-active {
   animation: tabSwitch 0.3s ease-out;
 }
 
-/* Active Members Badge */
 .active-members-pulse {
-  animation: pulse-subtle 2s ease-in-out infinite;
+  animation: pulseSubtle 2s ease-in-out infinite;
 }
 
-/* Smooth Scroll */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+.header-avatar-hover {
+  position: relative;
 }
 
-::-webkit-scrollbar-track {
-  background: transparent;
+.header-avatar-hover::after {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: 0.5rem;
+  background: linear-gradient(
+    45deg,
+    transparent,
+    rgba(99, 102, 241, 0.2),
+    transparent
+  );
+  opacity: 0;
+  animation: shimmer 2s infinite;
+  transition: opacity 0.3s ease-out;
 }
 
-::-webkit-scrollbar-thumb {
-  background: rgba(71, 85, 105, 0.5);
-  border-radius: 4px;
-
-  &:hover {
-    background: rgba(71, 85, 105, 0.8);
-  }
+.header-avatar-hover:hover::after {
+  opacity: 1;
 }
 
-/* Message container animations */
-@keyframes messageSlideIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.group-info-badge {
+  @apply inline-flex items-center gap-1 rounded-full border border-indigo-500/20 bg-indigo-500/10 px-2 py-1 text-xs font-medium text-indigo-300 transition-all duration-200;
 }
 
-@keyframes messageSlideOut {
-  from {
-    opacity: 1;
-    transform: translateY(0);
-  }
-  to {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
+.group-info-badge:hover {
+  @apply border-indigo-500/40 bg-indigo-500/20;
 }
 
-@keyframes reactionBounce {
-  0%,
-  100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.15);
-  }
+/* ==========================================================================
+   Groups Page Tabs
+   Mobile/tab switching styles are kept together for readability.
+   ========================================================================== */
+
+.groups-tabs-scroll {
+  scroll-behavior: smooth;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
-@keyframes typingBounce {
-  0%,
-  60%,
-  100% {
-    transform: translateY(0);
-  }
-  30% {
-    transform: translateY(-10px);
-  }
+.groups-tabs-scroll::-webkit-scrollbar {
+  display: none;
 }
+
+.groups-tab-pill {
+  transform-origin: center;
+}
+
+.groups-tab-pill:active {
+  transform: scale(0.97);
+}
+
+.groups-tab-panel {
+  will-change: transform, opacity;
+}
+
+.groups-tab-panel-right {
+  animation: groupsTabSlideFromRight 0.28s ease-out;
+}
+
+.groups-tab-panel-left {
+  animation: groupsTabSlideFromLeft 0.28s ease-out;
+}
+
+.groups-filter-toggle {
+  white-space: nowrap;
+}
+
+.groups-filter-panel {
+  display: grid;
+  gap: 0.875rem;
+  border: 1px solid rgba(51, 65, 85, 0.5);
+  background: rgba(15, 23, 42, 0.45);
+  border-radius: 1rem;
+  padding: 1rem;
+  animation: fadeInScale 0.2s ease-out;
+}
+
+.groups-filter-reset {
+  justify-self: end;
+}
+
+.groups-filter-grid {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+}
+
+.groups-filter-select {
+  width: 100%;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(51, 65, 85, 0.5);
+  background: rgba(30, 41, 59, 0.7);
+  padding: 0.75rem 0.875rem;
+  font-size: 0.875rem;
+  color: rgb(226 232 240);
+  transition: all 0.2s ease-in-out;
+}
+
+.groups-filter-select:hover {
+  background: rgba(51, 65, 85, 0.7);
+}
+
+.groups-filter-select:focus {
+  outline: none;
+  border-color: rgba(99, 102, 241, 0.8);
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.25);
+}
+
+/* ==========================================================================
+   Chat Module
+   ========================================================================== */
 
 .message-group {
   animation: messageSlideIn 0.3s ease-out;
@@ -387,22 +593,6 @@
   animation: messageSlideOut 0.3s ease-out;
 }
 
-/* Reaction animations */
-.emoji-reaction {
-  animation: reactionBounce 0.4s ease-in-out;
-}
-
-/* Typing indicator animations */
-.typing-dot {
-  animation: typingBounce 1.4s infinite;
-}
-
-/* Smooth transitions */
-.transition-all {
-  transition: all 0.2s ease-in-out;
-}
-
-/* Chat bubble hover effects */
 .chat-bubble {
   transition: all 0.2s ease-in-out;
 }
@@ -411,25 +601,14 @@
   filter: brightness(1.1);
 }
 
-/* Input focus animations */
-.input {
-  transition: all 0.2s ease-in-out;
+.emoji-reaction {
+  animation: reactionBounce 0.4s ease-in-out;
 }
 
-.input:focus {
-  animation: none;
+.typing-dot {
+  animation: typingBounce 1.4s infinite;
 }
 
-/* Button press animations */
-button {
-  transition: all 0.15s ease-in-out;
-}
-
-button:active {
-  transform: scale(0.95);
-}
-
-/* Reaction picker animation */
 .emoji-picker {
   animation: fadeInScale 0.2s ease-out;
 }
@@ -446,7 +625,6 @@ button:active {
   transform: scale(0.9);
 }
 
-/* Message edit mode animation */
 .message-edit-mode {
   background:
     linear-gradient(
@@ -465,95 +643,37 @@ button:active {
       yellow 75%,
       yellow
     );
-  background-size: 10px 10px;
   background-position:
     0 0,
     5px 5px;
+  background-size: 10px 10px;
   background-color: rgba(234, 179, 8, 0.1);
-  animation: shimmer 2s infinite;
   border-color: rgba(234, 179, 8, 0.5);
+  animation: shimmer 2s infinite;
 }
 
-/* Delete animation */
 .message-delete {
   animation: fadeOutScale 0.3s ease-in-out forwards;
-}
-
-/* Pin animation */
-@keyframes pinPulse {
-  0%,
-  100% {
-    box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.7);
-  }
-  50% {
-    box-shadow: 0 0 0 8px rgba(99, 102, 241, 0);
-  }
 }
 
 .message-pinned {
   animation: pinPulse 2s infinite;
 }
 
-/* Read receipt animation */
-@keyframes checkMark {
-  0% {
-    opacity: 0;
-    transform: translateX(-5px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
 .read-receipt-check {
   animation: checkMark 0.3s ease-out;
 }
 
-/* Search highlight animation */
 .search-highlight {
-  background-color: rgba(99, 102, 241, 0.2);
   border-left: 3px solid rgba(99, 102, 241, 1);
+  background-color: rgba(99, 102, 241, 0.2);
   animation: fadeInScale 0.2s ease-out;
 }
 
-/* Header Group Avatar Animation */
-.header-avatar-hover {
-  position: relative;
+/* ==========================================================================
+   Responsive Overrides
+   ========================================================================== */
 
-  &::after {
-    content: '';
-    position: absolute;
-    inset: -2px;
-    border-radius: 0.5rem;
-    background: linear-gradient(
-      45deg,
-      transparent,
-      rgba(99, 102, 241, 0.2),
-      transparent
-    );
-    opacity: 0;
-    animation: shimmer 2s infinite;
-    transition: opacity 0.3s ease-out;
-  }
-
-  &:hover::after {
-    opacity: 1;
-  }
-}
-
-/* Group Info Badge */
-.group-info-badge {
-  @apply inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium
-  bg-indigo-500/10 text-indigo-300 border border-indigo-500/20
-  transition-all duration-200;
-}
-
-.group-info-badge:hover {
-  @apply bg-indigo-500/20 border-indigo-500/40;
-}
-
-/* Responsive Lobby */
 @media (max-width: 768px) {
   .lobby-sidebar {
     width: 60px;
@@ -562,5 +682,17 @@ button:active {
   .lobby-tab-button {
     width: 45px;
     height: 45px;
+  }
+}
+
+@media (min-width: 640px) {
+  .groups-filter-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .groups-filter-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }

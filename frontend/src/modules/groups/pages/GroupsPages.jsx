@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router";
 import { navigateToGroup, useGroupStore } from "../useGroupStore";
 import GroupsHeader from "../components/GroupsHeader";
@@ -20,9 +20,13 @@ import {
   useRejectInvite,
 } from "../hooks/useGroups";
 
+const GROUP_TAB_ORDER = ["my-groups", "discover", "invites", "schedule"];
+const SWIPE_THRESHOLD = 72;
+
 const GroupsPages = () => {
   const navigate = useNavigate();
   const activeTab = useGroupStore((state) => state.activeTab);
+  const setActiveTab = useGroupStore((state) => state.setActiveTab);
   const searchQuery = useGroupStore((state) => state.searchQuery);
   const filters = useGroupStore((state) => state.filters);
   const sortBy = useGroupStore((state) => state.sortBy);
@@ -43,10 +47,51 @@ const GroupsPages = () => {
   const rejectInviteMutation = useRejectInvite();
 
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [transitionDirection, setTransitionDirection] = useState("right");
+  const touchStartRef = useRef({ x: 0, y: 0 });
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [activeTab]);
+
+  const switchTab = (nextTab) => {
+    if (!nextTab || nextTab === activeTab) return;
+
+    const currentIndex = GROUP_TAB_ORDER.indexOf(activeTab);
+    const nextIndex = GROUP_TAB_ORDER.indexOf(nextTab);
+
+    setTransitionDirection(nextIndex > currentIndex ? "right" : "left");
+    setActiveTab(nextTab);
+  };
+
+  const handleTouchStart = (event) => {
+    const [touch] = event.changedTouches;
+
+    if (!touch) return;
+
+    touchStartRef.current = {
+      x: touch.clientX,
+      y: touch.clientY,
+    };
+  };
+
+  const handleTouchEnd = (event) => {
+    const [touch] = event.changedTouches;
+
+    if (!touch) return;
+
+    const deltaX = touch.clientX - touchStartRef.current.x;
+    const deltaY = touch.clientY - touchStartRef.current.y;
+    const isHorizontalSwipe = Math.abs(deltaX) > SWIPE_THRESHOLD && Math.abs(deltaX) > Math.abs(deltaY) * 1.25;
+
+    if (!isHorizontalSwipe) return;
+
+    const activeIndex = GROUP_TAB_ORDER.indexOf(activeTab);
+    const nextIndex = deltaX < 0 ? activeIndex + 1 : activeIndex - 1;
+    const nextTab = GROUP_TAB_ORDER[nextIndex];
+
+    switchTab(nextTab);
+  };
 
   // Filter and sort groups based on search and filters
   const filteredGroups = (groups) => {
@@ -154,10 +199,18 @@ const GroupsPages = () => {
       {activeTab !== "invites" && activeTab !== "schedule" && <SearchFilterBar />}
 
       {/* Tabs */}
-      <TabsNavigation />
+      <TabsNavigation onTabChange={switchTab} />
 
       {/* Content based on active tab */}
-      <div className="mt-6">
+      <div
+        className="mt-6"
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+      >
+        <div
+          key={activeTab}
+          className={`groups-tab-panel groups-tab-panel-${transitionDirection}`}
+        >
         {activeTab === "my-groups" && (
           <GroupsList
             groups={displayGroups}
@@ -217,6 +270,7 @@ const GroupsPages = () => {
             )}
           </>
         )}
+        </div>
       </div>
 
       {/* Create Group Modal */}

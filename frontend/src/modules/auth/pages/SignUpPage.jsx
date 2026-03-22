@@ -46,7 +46,7 @@ const SignUpPage = () => {
                         type="text" 
                         value= {formData.initusername}
                         onChange={(e) => setFormData({...formData, initusername: e.target.value})}
-                        className="input"
+                        className="auth-input"
                         placeholder="John Doe" 
                       />
                     </div>
@@ -62,7 +62,7 @@ const SignUpPage = () => {
                         type="email" 
                         value= {formData.initemail}
                         onChange={(e) => setFormData({...formData, initemail: e.target.value})}
-                        className="input"
+                        className="auth-input"
                         placeholder="johnDoe@gmail.com" 
                       />
                     </div>
@@ -78,7 +78,7 @@ const SignUpPage = () => {
                         type="password" 
                         value= {formData.initpassword}
                         onChange={(e) => setFormData({...formData, initpassword: e.target.value})}
-                        className="input"
+                        className="auth-input"
                         placeholder="Enter your password" 
                       />
                     </div>
